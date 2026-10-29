@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const items = [
   { href: "/admin", label: "概览", exact: true },
   { href: "/admin/applications", label: "报名管理" },
+  { href: "/admin/leads", label: "留言咨询" },
   { href: "/admin/content", label: "内容编辑" },
   { href: "/admin/chats", label: "客服对话" },
 ];

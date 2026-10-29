@@ -979,3 +979,51 @@ export const apply = {
     duplicate: L("这个号码刚刚已经提交过，请勿重复报名", "This number has already been submitted recently", "ເບີນີ້ໄດ້ສົ່ງແລ້ວ, ກະລຸນາຢ່າສົ່ງຊ້ຳ", "이 번호로 이미 제출되었습니다"),
   },
 };
+
+/**
+ * 留言 / 咨询表单文案
+ * 面向「还没准备报名、但想问一句」的人：只要电话 + 一句话，门槛比报名表低。
+ */
+export const lead = {
+  eyebrow: L("留言咨询", "Leave a message", "ຝາກຂໍ້ຄວາມ", "메시지 남기기"),
+  title: L(
+    "不方便打电话？留言给我们",
+    "Can't call right now? Leave us a message",
+    "ບໍ່ສະດວກໂທ? ຝາກຂໍ້ຄວາມຫາເຮົາໄດ້",
+    "지금 전화가 어려우신가요? 메시지를 남겨 주세요",
+  ),
+  intro: L(
+    "留下电话和想问的问题，招生老师会在 1 个工作日内回复。如果已经决定报名，建议直接填上面的在线报名表，处理更快。",
+    "Leave your number and your question — our admissions team replies within one working day. If you have already decided to apply, please use the application form above; it is processed faster.",
+    "ຝາກເບີໂທ ແລະ ຄຳຖາມຂອງທ່ານ ອາຈານຮັບສະໝັກຈະຕອບກັບພາຍໃນ 1 ວັນເຮັດວຽກ. ຖ້າຕັດສິນໃຈສະໝັກແລ້ວ ກະລຸນາໃຊ້ແບບຟອມສະໝັກຂ້າງເທິງ ເພື່ອຄວາມໄວ.",
+    "연락처와 궁금한 점을 남겨 주시면 입학 담당자가 1영업일 내에 답변드립니다. 지원을 결정하셨다면 위의 온라인 지원서를 이용하시면 더 빠르게 처리됩니다.",
+  ),
+  fields: {
+    name: L("称呼（选填）", "Your name (optional)", "ຊື່ (ບໍ່ບັງຄັບ)", "성함 (선택)"),
+    phone: L("电话 / WhatsApp", "Phone / WhatsApp", "ເບີໂທ / WhatsApp", "전화 / WhatsApp"),
+    email: L("邮箱（选填）", "Email (optional)", "ອີເມວ (ບໍ່ບັງຄັບ)", "이메일 (선택)"),
+    message: L("想咨询的问题", "Your question", "ຄຳຖາມທີ່ຕ້ອງການສອບຖາມ", "문의 내용"),
+  },
+  submit: L("发送留言", "Send message", "ສົ່ງຂໍ້ຄວາມ", "메시지 보내기"),
+  submitting: L("正在发送…", "Sending…", "ກຳລັງສົ່ງ…", "전송 중…"),
+  successTitle: L("留言已收到", "Message received", "ໄດ້ຮັບຂໍ້ຄວາມແລ້ວ", "메시지가 접수되었습니다"),
+  successBody: L(
+    "招生老师会在 1 个工作日内联系你。急事请直接致电 +856 20 5825 8055。",
+    "Our admissions team will contact you within one working day. For urgent matters, call +856 20 5825 8055.",
+    "ອາຈານຮັບສະໝັກຈະຕິດຕໍ່ພາຍໃນ 1 ວັນເຮັດວຽກ. ຖ້າດ່ວນ ໂທ +856 20 5825 8055.",
+    "입학 담당자가 1영업일 내에 연락드립니다. 급한 문의는 +856 20 5825 8055로 전화하세요.",
+  ),
+  successAgain: L("再留一条", "Send another", "ຝາກອີກຄັ້ງ", "추가로 남기기"),
+  errors: {
+    phone: L("请输入有效的电话号码", "Please enter a valid phone number", "ກະລຸນາໃສ່ເບີໂທທີ່ຖືກຕ້ອງ", "올바른 전화번호를 입력해 주세요"),
+    message: L("请写下想问的问题", "Please write your question", "ກະລຸນາຂຽນຄຳຖາມ", "문의 내용을 입력해 주세요"),
+    email: L("邮箱格式不正确", "Please enter a valid email", "ອີເມວບໍ່ຖືກຕ້ອງ", "이메일 형식이 올바르지 않습니다"),
+    network: L("网络异常，请稍后重试", "Network error, please try again", "ເຄືອຂ່າຍຜິດພາດ, ກະລຸນາລອງໃໝ່", "네트워크 오류입니다. 다시 시도해 주세요"),
+    duplicate: L(
+      "刚刚已经留过言了，我们会尽快回复",
+      "You have just sent a message — we will reply soon",
+      "ທ່ານຫາກໍ່ຝາກຂໍ້ຄວາມແລ້ວ ພວກເຮົາຈະຕອບໄວໆນີ້",
+      "방금 메시지를 보내셨습니다. 곧 답변드리겠습니다",
+    ),
+  },
+};

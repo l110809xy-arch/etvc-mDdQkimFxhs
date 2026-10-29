@@ -8,6 +8,7 @@ import { Reveal } from "@/components/reveal";
 import { Icon } from "@/components/icons";
 import { Gallery } from "@/components/gallery";
 import { ApplyForm } from "@/components/apply-form";
+import { LeadForm } from "@/components/lead-form";
 import { useLocale } from "@/components/locale-provider";
 import {
   about,
@@ -18,6 +19,7 @@ import {
   contact,
   faq,
   gallery,
+  lead,
   school,
   ui,
   welfare,
@@ -738,6 +740,28 @@ function Contact() {
                 </p>
               </div>
             </div>
+          </Reveal>
+        </div>
+
+        {/* 留言咨询：给还没决定报名、只想先问一句的人一个低门槛入口 */}
+        <div className="mt-14 grid grid-cols-1 gap-10 border-t border-pine/10 pt-12 lg:grid-cols-12 lg:gap-14">
+          <Reveal className="lg:col-span-5">
+            <div className="flex items-center gap-3">
+              <span className="h-px w-8 bg-cinnabar" />
+              <p className="text-[11px] font-medium tracking-[0.26em] text-cinnabar">
+                {t(lead.eyebrow)}
+              </p>
+            </div>
+            <h3 className="mt-4 font-serif text-[clamp(1.4rem,2.2vw,1.9rem)] leading-snug text-pine">
+              {t(lead.title)}
+            </h3>
+            <p className="mt-4 max-w-md text-[13.5px] leading-relaxed text-ink-soft">
+              {t(lead.intro)}
+            </p>
+          </Reveal>
+
+          <Reveal delay={100} className="lg:col-span-7">
+            <LeadForm />
           </Reveal>
         </div>
       </div>

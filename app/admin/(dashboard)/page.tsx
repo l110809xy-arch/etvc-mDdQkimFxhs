@@ -44,17 +44,23 @@ export default async function AdminHome() {
   await requireAdmin();
   const db = adminClient();
 
-  const [{ data: statsRow }, { data: recent }, { data: quotaRow }, { data: chatCount }] =
-    await Promise.all([
-      db.from("application_stats").select("*").single(),
-      db
-        .from("applications")
-        .select("id, full_name, phone, created_at, status, scholarship")
-        .order("created_at", { ascending: false })
-        .limit(6),
-      db.from("settings").select("value").eq("key", "admission.quota").maybeSingle(),
-      db.from("chat_messages").select("session_id").limit(2000),
-    ]);
+  const [
+    { data: statsRow },
+    { data: recent },
+    { data: quotaRow },
+    { data: chatCount },
+    { count: leadOpen },
+  ] = await Promise.all([
+    db.from("application_stats").select("*").single(),
+    db
+      .from("applications")
+      .select("id, full_name, phone, created_at, status, scholarship")
+      .order("created_at", { ascending: false })
+      .limit(6),
+    db.from("settings").select("value").eq("key", "admission.quota").maybeSingle(),
+    db.from("chat_messages").select("session_id").limit(2000),
+    db.from("leads").select("id", { count: "exact", head: true }).eq("handled", false),
+  ]);
 
   const stats = (statsRow ?? {
     total: 0,
@@ -194,13 +200,22 @@ export default async function AdminHome() {
         )}
       </section>
 
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Link
           href="/admin/applications"
           className="border border-pine/12 bg-paper p-4 transition-colors hover:border-pine/35"
         >
           <p className="text-[13.5px] text-pine">报名管理</p>
           <p className="mt-1 text-[11.5px] text-ink-soft">筛选、改状态、导出 CSV</p>
+        </Link>
+        <Link
+          href="/admin/leads"
+          className="border border-pine/12 bg-paper p-4 transition-colors hover:border-pine/35"
+        >
+          <p className="text-[13.5px] text-pine">留言咨询</p>
+          <p className="mt-1 text-[11.5px] text-ink-soft">
+            {(leadOpen ?? 0) > 0 ? `${leadOpen} 条待处理` : "暂无待处理留言"}
+          </p>
         </Link>
         <Link
           href="/admin/content"
