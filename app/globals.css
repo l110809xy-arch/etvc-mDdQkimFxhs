@@ -1,26 +1,187 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* 宣纸底色与墨色 */
+  --color-paper: #f8f5ef;
+  --color-paper-2: #f1ebe1;
+  --color-paper-3: #e6ded0;
+  --color-ink: #14201e;
+  --color-ink-soft: #4d5c58;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* 松柏青（主色） */
+  --color-pine: #0d3b35;
+  --color-pine-deep: #082a26;
+  --color-jade: #1b6b5f;
+  --color-jade-light: #8dbcb0;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* 朱砂与金（点缀） */
+  --color-cinnabar: #b84a2b;
+  --color-gold: #c3a05c;
+
+  --font-sans: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    "Noto Sans SC", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic",
+    "Noto Sans KR", system-ui, sans-serif;
+  --font-serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun",
+    "Noto Serif KR", "Nanum Myeongjo", "Batang", Georgia, serif;
+  --font-lao: "Noto Sans Lao", "Phetsarath OT", "Saysettha OT", "DokChampa",
+    "Leelawadee UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-ko: "Inter", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic",
+    "Noto Sans KR", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+
+  --animate-marquee: marquee 42s linear infinite;
+  --animate-rise: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(22px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background-color: var(--color-jade);
+    color: #fff;
+  }
+
+  /* 按当前语言切换正文字体：老挝语需要专用字体栈，韩语优先韩文字体 */
+  html[data-locale="lo"] body {
+    font-family: var(--font-lao);
+  }
+
+  html[data-locale="ko"] body {
+    font-family: var(--font-ko);
+  }
+
+  html[data-locale="lo"] h1,
+  html[data-locale="lo"] h2,
+  html[data-locale="lo"] h3 {
+    font-family: var(--font-lao);
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* 页面主容器 */
+.shell {
+  width: 100%;
+  max-width: 1220px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .shell {
+    padding-inline: 2.25rem;
+  }
+}
+
+/* 民族几何纹样底纹 */
+.pattern-lattice {
+  background-image: repeating-linear-gradient(
+      45deg,
+      currentColor 0 1px,
+      transparent 1px 12px
+    ),
+    repeating-linear-gradient(-45deg, currentColor 0 1px, transparent 1px 12px);
+}
+
+/* 回纹分隔带 */
+.pattern-meander {
+  background-image: repeating-linear-gradient(
+    90deg,
+    currentColor 0 10px,
+    transparent 10px 12px,
+    currentColor 12px 14px,
+    transparent 14px 26px
+  );
+}
+
+/* 滚动进入视口的淡入上移（仅在 JS 可用时隐藏初始状态，避免无 JS 时内容空白） */
+.reveal {
+  transition:
+    opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.js .reveal {
+  opacity: 0;
+  transform: translateY(26px);
+}
+
+.js .reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* 竖向排版小字 */
+.vertical-rl {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+}
+
+/* 卡片悬浮时的箭头位移 */
+.arrow-shift {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.group:hover .arrow-shift {
+  transform: translateX(4px);
+}
+
+/* 跑马灯悬停暂停 */
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* 细线 */
+.hairline {
+  height: 1px;
+  background: color-mix(in srgb, var(--color-pine) 14%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .marquee-track {
+    animation: none;
+  }
 }
