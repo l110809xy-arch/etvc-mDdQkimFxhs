@@ -70,18 +70,22 @@
     color: #fff;
   }
 
-  /* 按当前语言切换正文字体：老挝语需要专用字体栈，韩语优先韩文字体 */
-  html[data-locale="lo"] body {
+  /*
+   * 按当前语言切换正文字体：老挝语需要专用字体栈，韩语优先韩文字体。
+   * 选择器同时覆盖 html（首屏脚本同步）与语言包裹层（服务端渲染即生效），
+   * 这样即使 JS 未执行，/lo 与 /ko 也能拿到正确字体。
+   */
+  [data-locale="lo"] {
     font-family: var(--font-lao);
   }
 
-  html[data-locale="ko"] body {
+  [data-locale="ko"] {
     font-family: var(--font-ko);
   }
 
-  html[data-locale="lo"] h1,
-  html[data-locale="lo"] h2,
-  html[data-locale="lo"] h3 {
+  [data-locale="lo"] h1,
+  [data-locale="lo"] h2,
+  [data-locale="lo"] h3 {
     font-family: var(--font-lao);
     font-weight: 700;
     letter-spacing: 0;

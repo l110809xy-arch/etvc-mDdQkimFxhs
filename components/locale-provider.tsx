@@ -4,17 +4,14 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
-  useLayoutEffect,
   useMemo,
-  useRef,
-  useState,
+  type ReactNode,
 } from "react";
+import { useRouter } from "next/navigation";
 import {
   defaultLocale,
-  isLocale,
-  LOCALE_STORAGE_KEY,
   localeMeta,
+  localePath,
   pick,
   type Locale,
   type Localized,
@@ -22,6 +19,7 @@ import {
 
 type LocaleContextValue = {
   locale: Locale;
+  /** 切换语言 = 跳到对应语言的 URL，保证每种语言都有独立可收录的地址 */
   setLocale: (next: Locale) => void;
   /** 取四语文案中当前语言的一条 */
   t: (value: Localized) => string;
@@ -29,63 +27,32 @@ type LocaleContextValue = {
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
-/** SSR 阶段用 useEffect，客户端用 useLayoutEffect（在首次绘制前同步已保存的语言，避免闪烁） */
-const useIsoLayoutEffect =
-  typeof window === "undefined" ? useEffect : useLayoutEffect;
+/**
+ * 语言由路由决定（/ 为中文，/lo /en /ko 为其余语言），
+ * 因此服务端渲染出的 HTML 就是该语言的内容，爬虫无需执行 JS 也能读到正确文案。
+ */
+export function LocaleProvider({
+  children,
+  initialLocale = defaultLocale,
+}: {
+  children: ReactNode;
+  initialLocale?: Locale;
+}) {
+  const locale = initialLocale;
+  const router = useRouter();
 
-export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(defaultLocale);
-  const [switching, setSwitching] = useState(false);
-  const localeRef = useRef<Locale>(defaultLocale);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // 首次挂载：读取本地保存的语言，在绘制前完成切换
-  useIsoLayoutEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY);
-      if (isLocale(stored) && stored !== localeRef.current) {
-        localeRef.current = stored;
-        setLocaleState(stored);
-      }
-    } catch {
-      /* localStorage 不可用时保持默认语言 */
-    }
-  }, []);
-
-  // 同步 <html lang> 与字体作用域
-  useEffect(() => {
-    const root = document.documentElement;
-    root.lang = localeMeta[locale].htmlLang;
-    root.dataset.locale = locale;
-    try {
-      window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
-    } catch {
-      /* 忽略写入失败 */
-    }
-  }, [locale]);
-
-  useEffect(() => {
-    return () => {
-      if (timer.current) clearTimeout(timer.current);
-    };
-  }, []);
-
-  const setLocale = useCallback((next: Locale) => {
-    if (next === localeRef.current) return;
-    localeRef.current = next;
-
-    // 先压暗再换文案，形成一次极短的交叉淡入，避免文字硬切
-    setSwitching(true);
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => {
-      setLocaleState(next);
-      setSwitching(false);
-    }, 140);
-  }, []);
+  const setLocale = useCallback(
+    (next: Locale) => {
+      if (next === locale) return;
+      // 保留当前锚点，切换语言后仍停在同一个版块
+      const hash = typeof window === "undefined" ? "" : window.location.hash;
+      router.push(`${localePath(next)}${hash}`, { scroll: false });
+    },
+    [locale, router],
+  );
 
   const t = useCallback((value: Localized) => pick(value, locale), [locale]);
 
-  // locale 变化时重建 t，保证依赖 t 的组件拿到新语言
   const value = useMemo<LocaleContextValue>(
     () => ({ locale, setLocale, t }),
     [locale, setLocale, t],
@@ -94,8 +61,10 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
   return (
     <LocaleContext.Provider value={value}>
       <div
-        className="flex min-h-full flex-1 flex-col transition-opacity duration-150 ease-out"
-        style={{ opacity: switching ? 0.35 : 1 }}
+        // 服务端就把语言写到包裹层：字体选择器与屏幕阅读器无需等 JS 即可生效
+        lang={localeMeta[locale].htmlLang}
+        data-locale={locale}
+        className="flex min-h-full flex-1 flex-col"
       >
         {children}
       </div>

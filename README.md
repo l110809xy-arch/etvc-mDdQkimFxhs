@@ -27,18 +27,77 @@ npm run lint    # ESLint 检查
 | 校园生活 | `#campus` | 三项校园文化要点 + 6 张图片长廊（3 列响应式网格） |
 | 联系我们 | `#contact` | 地址（中/英/老）、电话与 WhatsApp、Facebook、报名二维码 |
 
-## 多语言（四语切换）
+## 多语言（四语独立 URL）
 
-支持 **老挝语 / 中文 / 英文 / 韩语** 四种语言，导航右侧的下拉菜单即时切换，无需刷新页面。
+支持 **老挝语 / 中文 / 英文 / 韩语** 四种语言。语言由 **URL 决定**，而不是 localStorage：
 
-- `lib/i18n.ts` — 语言类型、语言元数据（原生名 / 英文名 / 缩写 / html lang）、`L()` 构造器
+| 语言 | 地址 |
+| --- | --- |
+| 中文（默认） | `/` |
+| 老挝语 | `/lo` |
+| 英文 | `/en` |
+| 韩语 | `/ko` |
+
+这样服务端渲染出来的 HTML 就是该语言的文案，爬虫不执行 JS 也能读到正确内容；四种语言各自可被收录。
+
+- `lib/i18n.ts` — 语言类型、`localeMeta`（原生名 / 缩写 / html lang）、`localePath()`、`L()` 构造器
 - `lib/content.ts` — 所有文案都是 `L(中文, English, ລາວ, 한국어)` 形式的四语对象
-- `components/locale-provider.tsx` — 语言上下文：`locale` / `setLocale` / `t()`；写入 `localStorage`，同步 `<html lang>` 与 `data-locale`，切换时做 140ms 交叉淡入
-- `components/language-switcher.tsx` — 桌面下拉菜单 + 移动端抽屉内的四语按钮组
+- `app/page.tsx` / `app/[locale]/page.tsx` — 两个入口，各自输出该语言的 metadata
+- `components/page-shell.tsx` — 把路由语言注入 Provider，并输出对应的 JSON-LD
+- `components/locale-provider.tsx` — 语言上下文；`setLocale` 改为跳转到对应语言的 URL
+- `components/language-switcher.tsx` — 使用真实 `<a href>` 互链，可被爬取、可中键新开
 
-字体随语言自动切换：`html[data-locale="lo"]` 用 `--font-lao`，`html[data-locale="ko"]` 用 `--font-ko`，中文与英文沿用默认字体栈。
+字体随语言自动切换：`[data-locale="lo"]` 用 `--font-lao`，`[data-locale="ko"]` 用 `--font-ko`。
+该属性服务端就写在语言包裹层上，因此无 JS 时字体也正确。
 
-新增语言：在 `lib/i18n.ts` 的 `locales` 与 `localeMeta` 中加一项，并给 `L()` 增加对应参数即可。
+`/zh` 会在 `next.config.ts` 里 301 到 `/`，避免出现重复页面。
+
+新增语言：在 `lib/i18n.ts` 的 `locales` 与 `localeMeta` 中加一项，给 `L()` 增加对应参数，
+再在 `lib/seo.ts` 的 `seoCopy` 里补一份标题与描述即可。
+
+## SEO 与 GEO
+
+### 站点地址
+
+所有绝对地址（canonical、hreflang、sitemap、robots、Open Graph、JSON-LD）都来自
+`NEXT_PUBLIC_SITE_URL`，未配置时回退到 `https://etvc-website.vercel.app`。
+**绑定自定义域名后只需在 Vercel 环境变量里改这一条，不用动代码。**
+
+### 文件一览
+
+| 文件 | 作用 |
+| --- | --- |
+| `lib/seo.ts` | 中枢：站点地址、多语言路径、`buildMetadata()`、`buildJsonLd()` |
+| `app/robots.ts` | 放行 GPTBot / ClaudeBot / PerplexityBot 等 17 个 AI 爬虫，声明 sitemap |
+| `app/sitemap.ts` | 四条语言 URL，互相声明 hreflang，并附图片条目 |
+| `app/manifest.ts` | PWA manifest |
+| `app/not-found.tsx` | 站内 404 页面 |
+| `middleware.ts` | 未知路径直接返回真 404（见下方「软 404」） |
+| `public/llms.txt` | 给 AI 助手的站点事实摘要（GEO） |
+
+### 结构化数据
+
+每页输出一张 `@graph`，包含 5 个节点，`inLanguage` 随语言变化：
+
+- `CollegeOrUniversity` + `EducationalOrganization` —— 校名四语、创办年份、合作方、地址、电话、服务地区
+- `WebSite` —— 站点级信息
+- `WebPage` —— 当前页面
+- `Course` —— 三年制课程，含三档 `Offer`（学费 6,300,000 / 6,930,000 / 7,245,000 LAK）
+- `FAQPage` —— 6 组问答
+
+学费、名额、电话都从 `lib/content.ts` 读取，改文案即同步，不会出现两处数字打架。
+
+### FAQ 区块
+
+页面新增「常见问题」版块，用原生 `<details>` 折叠 —— 不依赖 JS，正文始终在 DOM 里，
+AI 抓取时能直接读到问答对。它同时是 `FAQPage` 结构化数据的来源，两边永远一致。
+
+### 关于「软 404」
+
+项目启用了 `cacheComponents`（PPR）。`[locale]` 兜底路由在**某个未知路径第一次被访问**时，
+会先返回 200 的静态壳再流式输出 404 内容，也就是软 404。
+因此 `middleware.ts` 在路由层校验第一段路径，只放行四种已知语言，其余直接返回 404。
+
 
 ## AI 智能客服（Google Gemini）
 

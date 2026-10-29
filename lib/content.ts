@@ -813,3 +813,110 @@ export const chat = {
     },
   ],
 };
+
+/**
+ * 常见问题（FAQ）
+ * 同时用于页面展示与 FAQPage 结构化数据，是 GEO（生成式引擎优化）最有效的抓手：
+ * 问答成对、事实明确、可直接被 AI 摘要引用。
+ */
+export const faq = {
+  eyebrow: L("常见问题", "FAQ", "ຄຳຖາມທີ່ພົບເລື້ອຍ", "자주 묻는 질문"),
+  title: L(
+    "招生与就读常见问题",
+    "Admissions & study FAQ",
+    "ຄຳຖາມກ່ຽວກັບການສະໝັກ ແລະ ການຮຽນ",
+    "입학·재학 관련 자주 묻는 질문",
+  ),
+  intro: L(
+    "以下回答依据校方公布的信息整理，如与最新公告不一致，以校方公告为准。",
+    "The answers below are compiled from official college information. Where they differ from the latest notice, the official notice prevails.",
+    "ຄຳຕອບຂ້າງລຸ່ມນີ້ອີງຕາມຂໍ້ມູນທີ່ສະຖາບັນປະກາດ; ຫາກຂັດກັບປະກາດລ່າສຸດ ໃຫ້ຖືປະກາດຂອງສະຖາບັນເປັນຫຼັກ.",
+    "아래 답변은 학교 공식 정보를 정리한 것입니다. 최신 공지와 다를 경우 공지를 우선합니다.",
+  ),
+  items: [
+    {
+      q: L(
+        "什么时候可以报名？招生截止到什么时候？",
+        "When can I apply, and what is the application deadline?",
+        "ສະໝັກໄດ້ເມື່ອໃດ? ປິດຮັບສະໝັກເມື່ອໃດ?",
+        "언제 지원할 수 있고 접수 마감은 언제인가요?",
+      ),
+      a: L(
+        "2026—2027 学年三年制高等职业课程正在招生，报名现已开放。具体截止日期请以校方最新公告为准，可扫描官网二维码在线报名，或致电招生老师确认。",
+        "Enrolment for the 2026-2027 Higher Diploma Programme is open now. For the exact closing date, please refer to the college's latest notice; you can apply online via the QR code on this site or call the admissions team to confirm.",
+        "ການຮັບສະໝັກຫຼັກສູດຊັ້ນສູງ 3 ປີ ປີການສຶກສາ 2026-2027 ເປີດແລ້ວ. ວັນປິດຮັບສະໝັກ ໃຫ້ອີງຕາມປະກາດລ່າສຸດຂອງສະຖາບັນ; ສາມາດສະໝັກອອນລາຍຜ່ານ QR ໃນເວັບໄຊ ຫຼື ໂທຫາອາຈານຮັບສະໝັກເພື່ອຢືນຢັນ.",
+        "2026-2027학년도 3년제 고등직업과정 모집이 진행 중입니다. 정확한 마감일은 학교 최신 공지를 확인하시고, 홈페이지 QR코드로 온라인 지원하거나 입학 담당자에게 전화로 문의하세요.",
+      ),
+    },
+    {
+      q: L(
+        "学费是多少？可以分期缴纳吗？",
+        "How much is the tuition? Can I pay in instalments?",
+        "ຄ່າຮຽນເທົ່າໃດ? ແບ່ງຈ່າຍໄດ້ບໍ່?",
+        "등록금은 얼마이며 분납이 가능한가요?",
+      ),
+      a: L(
+        "三年制课程学费按学年收取：第一学年 6,300,000 基普，第二学年 6,930,000 基普，第三学年 7,245,000 基普，三年合计 20,475,000 基普。可以一次性缴清，也可以分两个学期缴纳。",
+        "Tuition is charged per academic year: Year 1 is 6,300,000 LAK, Year 2 is 6,930,000 LAK and Year 3 is 7,245,000 LAK, totalling 20,475,000 LAK for three years. You may pay in full or split the payment across two semesters.",
+        "ຄ່າທຳນຽມເກັບຕາມປີການສຶກສາ: ປີທີ 1 6,300,000 ກີບ, ປີທີ 2 6,930,000 ກີບ, ປີທີ 3 7,245,000 ກີບ, ລວມ 3 ປີ 20,475,000 ກີບ. ສາມາດຈ່າຍຄັ້ງດຽວ ຫຼື ແບ່ງຈ່າຍ 2 ເທີມ.",
+        "등록금은 학년별로 납부합니다. 1학년 6,300,000킵, 2학년 6,930,000킵, 3학년 7,245,000킵이며 3년 총액은 20,475,000킵입니다. 일시납 또는 2학기 분납이 가능합니다.",
+      ),
+    },
+    {
+      q: L(
+        "学校有奖学金吗？怎么申请？",
+        "Does the college offer scholarships? How do I apply?",
+        "ມີທຶນການສຶກສາບໍ? ສະໝັກແນວໃດ?",
+        "장학금이 있나요? 어떻게 신청하나요?",
+      ),
+      a: L(
+        "有。学校每年提供 50 个奖学金名额，分为优秀学生奖学金（面向高中毕业成绩 7 分以上的学生）和面向贫困、失学学生的助学金。可在报名时向招生老师提出申请，具体评定标准以校方公布为准。",
+        "Yes. The college grants 50 scholarships every year: merit scholarships for M.7 graduates with results of 7 or above, and need-based grants for students from low-income families or those who have missed out on schooling. Apply through the admissions team when you enrol; assessment criteria follow the college's published rules.",
+        "ມີ. ສະຖາບັນມອບທຶນການສຶກສາ 50 ທຶນຕໍ່ປີ: ທຶນນັກຮຽນເກັ່ງ (ສຳລັບຜູ້ຈົບ ມ.7 ທີ່ໄດ້ 7 ຄະແນນຂຶ້ນໄປ) ແລະ ທຶນຊ່ວຍເຫຼືອນັກຮຽນທຸກຍາກ/ຂາດໂອກາດ. ສະໝັກໄດ້ກັບອາຈານຮັບສະໝັກຕອນລົງທະບຽນ.",
+        "네. 매년 50명 규모의 장학금을 지급합니다. 성적 우수 장학금(M.7 졸업 성적 7점 이상)과 저소득·교육 기회 취약 학생을 위한 장학금이 있습니다. 등록 시 입학 담당자에게 신청하면 되고, 심사 기준은 학교 공지를 따릅니다.",
+      ),
+    },
+    {
+      q: L(
+        "报名需要准备哪些材料？",
+        "What documents do I need to apply?",
+        "ຕ້ອງກຽມເອກະສານຫຍັງແດ່?",
+        "지원 시 어떤 서류가 필요한가요?",
+      ),
+      a: L(
+        "需要准备：高中毕业证（ม.7）、成绩单、个人简历（CV）、户口本或身份证、3×4 证件照 2 张。",
+        "You will need: your Grade 12 (M.7) certificate, a transcript, a CV, your family book or ID card, and two 3×4 photographs.",
+        "ຕ້ອງກຽມ: ໃບປະກາດ ມ.7, ໃບຄະແນນ, ຊີວະປະຫວັດ (CV), ສຳມະໂນຄົວ ຫຼື ບັດປະຈຳຕົວ, ຮູບ 3x4 ຈຳນວນ 2 ໃບ.",
+        "М.7 졸업증명서, 성적증명서, 이력서(CV), 호구부 또는 신분증, 3×4 사진 2장이 필요합니다.",
+      ),
+    },
+    {
+      q: L(
+        "上课时间怎么安排？都学哪些课程？",
+        "What are the class hours and which subjects are taught?",
+        "ເວລາຮຽນແນວໃດ? ຮຽນວິຊາໃດແດ່?",
+        "수업 시간과 교육 과목은 어떻게 되나요?",
+      ),
+      a: L(
+        "课程为三年制高等职业课程，周一至周五 8:00—12:00 上课。第一学年课程包括听力、口语、阅读、写作和商务汉语。",
+        "The programme is a three-year Higher Diploma, with classes Monday to Friday from 8:00 to 12:00. The Year 1 curriculum covers listening, speaking, reading, writing and business Chinese.",
+        "ຫຼັກສູດຊັ້ນສູງ 3 ປີ, ຮຽນວັນຈັນ-ວັນສຸກ ເວລາ 8:00-12:00. ປີທີ 1 ຮຽນ: ການຟັງ, ການເວົ້າ, ການອ່ານ, ການຂຽນ ແລະ ພາສາຈີນທຸລະກິດ.",
+        "3년제 과정이며 월요일부터 금요일까지 8:00-12:00에 수업합니다. 1학년 과정은 듣기, 말하기, 읽기, 쓰기, 비즈니스 중국어입니다.",
+      ),
+    },
+    {
+      q: L(
+        "学校在哪里？怎么联系？",
+        "Where is the college and how can I contact it?",
+        "ສະຖາບັນຢູ່ໃສ? ຕິດຕໍ່ແນວໃດ?",
+        "학교 위치와 연락처를 알려주세요.",
+      ),
+      a: L(
+        "校址位于老挝万象市赛塔尼县永坎村（Ban Viengkham, Xaythany District, Vientiane Capital）。咨询电话 / WhatsApp：+856 20 5825 8055、+856 20 5587 2937。",
+        "The campus is at Ban Viengkham, Xaythany District, Vientiane Capital, Lao PDR. Phone / WhatsApp: +856 20 5825 8055 and +856 20 5587 2937.",
+        "ສະຖາບັນຕັ້ງຢູ່ ບ້ານວຽງແກ້ວ, ເມືອງໄຊທານີ, ນະຄອນຫຼວງວຽງຈັນ. ໂທ / WhatsApp: +856 20 5825 8055, +856 20 5587 2937.",
+        "라오스 비엔티안 수도 사이타니현 비엥캄 마을에 있습니다. 전화/WhatsApp: +856 20 5825 8055, +856 20 5587 2937.",
+      ),
+    },
+  ],
+};

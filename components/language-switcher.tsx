@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Icon } from "./icons";
 import { useLocale } from "./locale-provider";
-import { locales, localeMeta, type Locale } from "@/lib/i18n";
+import { locales, localeMeta, localePath } from "@/lib/i18n";
 import { ui } from "@/lib/content";
 
 function Check({ className = "" }: { className?: string }) {
@@ -25,7 +26,7 @@ function Check({ className = "" }: { className?: string }) {
 
 /** 桌面端：导航右侧的语言下拉菜单 */
 export function LanguageSwitcher() {
-  const { locale, setLocale, t } = useLocale();
+  const { locale, t } = useLocale();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -49,17 +50,12 @@ export function LanguageSwitcher() {
     };
   }, [open]);
 
-  const choose = (next: Locale) => {
-    setLocale(next);
-    setOpen(false);
-  };
-
   return (
     <div ref={rootRef} className="relative">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-haspopup="listbox"
+        aria-haspopup="true"
         aria-expanded={open}
         aria-label={t(ui.languageSwitch)}
         className={`flex h-10 items-center gap-1.5 rounded-full border px-2.5 transition-colors duration-200 ${
@@ -92,17 +88,17 @@ export function LanguageSwitcher() {
         <p className="border-b border-pine/10 px-3.5 py-2 text-[9.5px] tracking-[0.22em] text-ink-soft/60">
           {t(ui.language).toUpperCase()}
         </p>
-        <ul role="listbox" aria-label={t(ui.language)} className="py-1">
+        <ul aria-label={t(ui.language)} className="py-1">
           {locales.map((code) => {
             const active = code === locale;
             return (
-              <li key={code} role="none">
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={active}
+              <li key={code}>
+                <Link
+                  href={localePath(code)}
+                  hrefLang={localeMeta[code].htmlLang}
                   lang={localeMeta[code].htmlLang}
-                  onClick={() => choose(code)}
+                  aria-current={active ? "page" : undefined}
+                  onClick={() => setOpen(false)}
                   className={`flex w-full items-center justify-between gap-3 px-3.5 py-2.5 text-left transition-colors duration-150 ${
                     active
                       ? "bg-pine/6 text-pine"
@@ -122,7 +118,7 @@ export function LanguageSwitcher() {
                       active ? "text-cinnabar opacity-100" : "opacity-0"
                     }`}
                   />
-                </button>
+                </Link>
               </li>
             );
           })}
@@ -134,7 +130,7 @@ export function LanguageSwitcher() {
 
 /** 移动端：抽屉菜单里的四语横排选项 */
 export function LanguageSwitcherMobile() {
-  const { locale, setLocale, t } = useLocale();
+  const { locale, t } = useLocale();
 
   return (
     <div className="mt-2 border-t border-pine/8 pt-4">
@@ -145,12 +141,12 @@ export function LanguageSwitcherMobile() {
         {locales.map((code) => {
           const active = code === locale;
           return (
-            <button
+            <Link
               key={code}
-              type="button"
-              onClick={() => setLocale(code)}
-              aria-pressed={active}
+              href={localePath(code)}
+              hrefLang={localeMeta[code].htmlLang}
               lang={localeMeta[code].htmlLang}
+              aria-current={active ? "page" : undefined}
               className={`flex items-center justify-between gap-2 border px-3 py-2.5 text-[13px] transition-colors duration-150 ${
                 active
                   ? "border-pine bg-pine text-paper"
@@ -168,7 +164,7 @@ export function LanguageSwitcherMobile() {
                 </span>
               </span>
               {active ? <Check className="h-3.5 w-3.5 text-gold" /> : null}
-            </button>
+            </Link>
           );
         })}
       </div>

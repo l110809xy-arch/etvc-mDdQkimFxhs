@@ -34,6 +34,15 @@ export function isLocale(value: unknown): value is Locale {
   return typeof value === "string" && (locales as readonly string[]).includes(value);
 }
 
+/**
+ * 语言对应的 URL 路径。
+ * 中文占据根路径，其余语言各自独立路径 —— 这样四种语言都能被搜索引擎单独收录，
+ * 同时不改变已经分享出去的首页链接。
+ */
+export function localePath(locale: Locale): string {
+  return locale === "zh" ? "/" : `/${locale}`;
+}
+
 /** 从四语文案中取出当前语言 */
 export function pick(value: Localized, locale: Locale): string {
   return value[locale] ?? value[defaultLocale];
