@@ -920,3 +920,62 @@ export const faq = {
     },
   ],
 };
+
+/**
+ * 在线报名表单文案
+ * 字段刻意精简到 10 个：每多一栏，放弃率就往上走。
+ */
+export const apply = {
+  eyebrow: L("在线报名", "Apply Online", "ສະໝັກອອນລາຍ", "온라인 지원"),
+  title: L(
+    "填写资料，招生老师会联系你",
+    "Fill in your details and our admissions team will contact you",
+    "ຕື່ມຂໍ້ມູນ ແລ້ວອາຈານຮັບສະໝັກຈະຕິດຕໍ່ກັບທ່ານ",
+    "정보를 입력하시면 입학 담당자가 연락드립니다",
+  ),
+  intro: L(
+    "提交后 1—3 个工作日内会有老师通过电话或 WhatsApp 联系。资料仅用于招生审核，不会对外公开。",
+    "Our team will call or message you on WhatsApp within 1–3 working days. Your details are used for admissions review only and are never shared publicly.",
+    "ຫຼັງສົ່ງແລ້ວ ອາຈານຈະໂທ ຫຼື ຕິດຕໍ່ຜ່ານ WhatsApp ພາຍໃນ 1-3 ວັນເຮັດວຽກ. ຂໍ້ມູນໃຊ້ພຽງເພື່ອກວດສອບການສະໝັກ ບໍ່ເຜີຍແຜ່ຕໍ່ສາທາລະນະ.",
+    "제출 후 1~3 영업일 내에 담당자가 전화 또는 WhatsApp으로 연락드립니다. 입력하신 정보는 입학 심사 용도로만 사용되며 외부에 공개되지 않습니다.",
+  ),
+  fields: {
+    fullName: L("姓名", "Full name", "ຊື່ ແລະ ນາມສະກຸນ", "이름"),
+    phone: L("电话 / WhatsApp", "Phone / WhatsApp", "ເບີໂທ / WhatsApp", "전화 / WhatsApp"),
+    gender: L("性别", "Gender", "ເພດ", "성별"),
+    birthDate: L("出生日期", "Date of birth", "ວັນເດືອນປີເກີດ", "생년월일"),
+    address: L("现住址（省 / 县 / 村）", "Address (province / district / village)", "ທີ່ຢູ່ (ແຂວງ / ເມືອງ / ບ້ານ)", "주소 (성 / 현 / 마을)"),
+    highSchool: L("毕业学校", "High school", "ໂຮງຮຽນທີ່ຈົບ", "졸업 고등학교"),
+    gradYear: L("毕业年份", "Graduation year", "ປີທີ່ຈົບ", "졸업 연도"),
+    gpa: L("毕业成绩", "Graduation score", "ຄະແນນຈົບ", "졸업 성적"),
+    note: L("想补充的说明（选填）", "Anything else (optional)", "ລາຍລະອຽດເພີ່ມເຕີມ (ບໍ່ບັງຄັບ)", "추가로 남기실 말 (선택)"),
+  },
+  genderOptions: {
+    male: L("男", "Male", "ຊາຍ", "남성"),
+    female: L("女", "Female", "ຍິງ", "여성"),
+    other: L("不便说明", "Prefer not to say", "ບໍ່ສະດວກບອກ", "밝히지 않음"),
+  },
+  scholarship: L(
+    "我想申请奖学金（每年 50 个名额）",
+    "I want to apply for a scholarship (50 places per year)",
+    "ຂ້ອຍຕ້ອງການສະໝັກທຶນການສຶກສາ (50 ທຶນຕໍ່ປີ)",
+    "장학금을 신청하고 싶습니다 (매년 50명)",
+  ),
+  submit: L("提交报名", "Submit application", "ສົ່ງໃບສະໝັກ", "지원서 제출"),
+  submitting: L("正在提交…", "Submitting…", "ກຳລັງສົ່ງ…", "제출 중…"),
+  successTitle: L("报名已提交", "Application received", "ສົ່ງໃບສະໝັກແລ້ວ", "지원서가 접수되었습니다"),
+  successBody: L(
+    "我们已收到你的资料，招生老师会在 1—3 个工作日内联系你。如需加急，可直接致电 +856 20 5825 8055。",
+    "We have received your details. Our admissions team will contact you within 1–3 working days. For urgent enquiries, call +856 20 5825 8055.",
+    "ພວກເຮົາໄດ້ຮັບຂໍ້ມູນແລ້ວ. ອາຈານຮັບສະໝັກຈະຕິດຕໍ່ພາຍໃນ 1-3 ວັນເຮັດວຽກ. ຖ້າຕ້ອງການດ່ວນ ໂທ +856 20 5825 8055.",
+    "정보가 접수되었습니다. 입학 담당자가 1~3 영업일 내에 연락드립니다. 급한 문의는 +856 20 5825 8055로 전화하세요.",
+  ),
+  successAgain: L("再填一份", "Submit another", "ສະໝັກເພີ່ມອີກ", "추가 제출"),
+  required: L("必填", "Required", "ຈຳເປັນ", "필수"),
+  errors: {
+    required: L("请填写必填项", "Please fill in the required fields", "ກະລຸນາຕື່ມຊ່ອງທີ່ຈຳເປັນ", "필수 항목을 입력해 주세요"),
+    phone: L("请输入有效的电话号码", "Please enter a valid phone number", "ກະລຸນາໃສ່ເບີໂທທີ່ຖືກຕ້ອງ", "올바른 전화번호를 입력해 주세요"),
+    network: L("网络异常，请稍后重试", "Network error, please try again", "ເຄືອຂ່າຍຜິດພາດ, ກະລຸນາລອງໃໝ່", "네트워크 오류입니다. 다시 시도해 주세요"),
+    duplicate: L("这个号码刚刚已经提交过，请勿重复报名", "This number has already been submitted recently", "ເບີນີ້ໄດ້ສົ່ງແລ້ວ, ກະລຸນາຢ່າສົ່ງຊ້ຳ", "이 번호로 이미 제출되었습니다"),
+  },
+};

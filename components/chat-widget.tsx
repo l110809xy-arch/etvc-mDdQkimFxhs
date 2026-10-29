@@ -29,6 +29,24 @@ export function ChatWidget() {
   const launcherRef = useRef<HTMLButtonElement | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
+  // 会话 ID：同一浏览器会话内固定，用于后台把一问一答归组
+  const sessionIdRef = useRef("");
+  if (!sessionIdRef.current) {
+    if (typeof window === "undefined") {
+      sessionIdRef.current = "ssr";
+    } else {
+      let id = window.sessionStorage.getItem("etvc-chat-session");
+      if (!id) {
+        id =
+          typeof crypto !== "undefined" && "randomUUID" in crypto
+            ? crypto.randomUUID()
+            : `s-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        window.sessionStorage.setItem("etvc-chat-session", id);
+      }
+      sessionIdRef.current = id;
+    }
+  }
+
   // 新消息 / 流式增量时贴底
   useEffect(() => {
     const el = listRef.current;
@@ -92,7 +110,11 @@ export function ChatWidget() {
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: history, locale }),
+          body: JSON.stringify({
+            messages: history,
+            locale,
+            sessionId: sessionIdRef.current,
+          }),
           signal: controller.signal,
         });
 

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { HomePage } from "@/components/home-page";
 import { PageShell } from "@/components/page-shell";
 import { isLocale, locales } from "@/lib/i18n";
+import { loadOverrides } from "@/lib/overrides";
 import { buildMetadata } from "@/lib/seo";
 
 /**
@@ -34,8 +35,10 @@ export default async function Page({
   const { locale } = await params;
   if (!isLocale(locale) || locale === "zh") notFound();
 
+  const overrides = await loadOverrides();
+
   return (
-    <PageShell locale={locale}>
+    <PageShell locale={locale} overrides={overrides}>
       <HomePage />
     </PageShell>
   );

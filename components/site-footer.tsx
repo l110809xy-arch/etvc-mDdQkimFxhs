@@ -115,7 +115,7 @@ export function SiteFooter() {
             <p className="mt-5 text-[12px] leading-relaxed text-paper/50">
               {t(announcement.schoolYear)}
               <br />
-              {t(announcement.deadline)}
+              {t(announcement.deadline, "announcement.deadline")}
             </p>
             <a
               href={`tel:${contact.phones[0].tel}`}

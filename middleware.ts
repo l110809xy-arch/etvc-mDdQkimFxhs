@@ -8,7 +8,7 @@ import { locales } from "@/lib/i18n";
  * 「某个未知路径第一次被访问」时会先返回 200 的静态壳、再流式输出 404 内容，
  * 也就是软 404 —— 对搜索引擎不友好。这里在路由层直接判定，任何情况下都是真 404。
  */
-const KNOWN_FIRST_SEGMENT = new Set<string>(locales);
+const KNOWN_FIRST_SEGMENT = new Set<string>([...locales, "admin"]);
 
 const NOT_FOUND_HTML = `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -50,7 +50,22 @@ const NOT_FOUND_HTML = `<!DOCTYPE html>
 </html>`;
 
 export function middleware(request: NextRequest) {
-  const first = request.nextUrl.pathname.split("/").filter(Boolean)[0];
+  const { pathname } = request.nextUrl;
+  const first = pathname.split("/").filter(Boolean)[0];
+
+  // 后台：没有登录 cookie 的直接踢到登录页（真正的权限校验在页面里）
+  if (first === "admin" && pathname !== "/admin/login") {
+    const hasSession = request.cookies
+      .getAll()
+      .some((c) => c.name.startsWith("sb-") && c.name.includes("-auth-token"));
+    if (!hasSession) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin/login";
+      url.search = "";
+      return NextResponse.redirect(url, 307);
+    }
+  }
+
   if (!first || KNOWN_FIRST_SEGMENT.has(first)) {
     return NextResponse.next();
   }

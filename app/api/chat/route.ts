@@ -12,6 +12,8 @@
 
 import { isLocale } from "@/lib/i18n";
 import { buildSystemPrompt } from "@/lib/knowledge";
+import { clientIp, createLimiter } from "@/lib/rate-limit";
+import { adminClient, hasSupabase, hashIp } from "@/lib/supabase/admin";
 
 const MODEL = process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash";
 const API_KEY =
@@ -29,39 +31,8 @@ const ENDPOINT =
 const MAX_MESSAGES = 12;
 const MAX_CHARS = 800;
 
-/** 简单内存限流：每 IP 每分钟 12 次（多实例部署下各自计数，够用即可） */
-const WINDOW_MS = 60_000;
-const MAX_PER_WINDOW = 12;
-type Bucket = { count: number; resetAt: number };
-const buckets = new Map<string, Bucket>();
-
-function rateLimit(key: string): { ok: true } | { ok: false; retryAfter: number } {
-  const now = Date.now();
-
-  // 顺带清理过期桶，避免 Map 无限增长
-  if (buckets.size > 500) {
-    for (const [k, v] of buckets) {
-      if (now > v.resetAt) buckets.delete(k);
-    }
-  }
-
-  const bucket = buckets.get(key);
-  if (!bucket || now > bucket.resetAt) {
-    buckets.set(key, { count: 1, resetAt: now + WINDOW_MS });
-    return { ok: true };
-  }
-  if (bucket.count >= MAX_PER_WINDOW) {
-    return { ok: false, retryAfter: Math.ceil((bucket.resetAt - now) / 1000) };
-  }
-  bucket.count += 1;
-  return { ok: true };
-}
-
-function clientIp(req: Request): string {
-  const forwarded = req.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0]!.trim();
-  return req.headers.get("x-real-ip")?.trim() || "anonymous";
-}
+/** 简单内存限流：每 IP 每分钟 12 次 */
+const rateLimit = createLimiter(12, 60_000);
 
 type IncomingMessage = { role: "user" | "assistant"; content: string };
 
@@ -105,12 +76,16 @@ function extractText(line: string): string {
   }
 }
 
-/** 把 Gemini 的 SSE 流转成纯文本流 */
-function toTextStream(body: ReadableStream<Uint8Array>): ReadableStream<Uint8Array> {
+/** 把 Gemini 的 SSE 流转成纯文本流；结束后回调完整回答，用于落库 */
+function toTextStream(
+  body: ReadableStream<Uint8Array>,
+  onComplete?: (text: string) => void,
+): ReadableStream<Uint8Array> {
   const reader = body.getReader();
   const decoder = new TextDecoder();
   const encoder = new TextEncoder();
   let buffer = "";
+  let collected = "";
 
   return new ReadableStream<Uint8Array>({
     async pull(controller) {
@@ -118,8 +93,12 @@ function toTextStream(body: ReadableStream<Uint8Array>): ReadableStream<Uint8Arr
 
       if (done) {
         const tail = buffer.trim() ? extractText(buffer) : "";
-        if (tail) controller.enqueue(encoder.encode(tail));
+        if (tail) {
+          collected += tail;
+          controller.enqueue(encoder.encode(tail));
+        }
         controller.close();
+        onComplete?.(collected);
         return;
       }
 
@@ -129,7 +108,10 @@ function toTextStream(body: ReadableStream<Uint8Array>): ReadableStream<Uint8Arr
 
       let chunk = "";
       for (const line of lines) chunk += extractText(line);
-      if (chunk) controller.enqueue(encoder.encode(chunk));
+      if (chunk) {
+        collected += chunk;
+        controller.enqueue(encoder.encode(chunk));
+      }
     },
     cancel() {
       void reader.cancel();
@@ -137,12 +119,35 @@ function toTextStream(body: ReadableStream<Uint8Array>): ReadableStream<Uint8Arr
   });
 }
 
+/** 写一条对话记录；数据库不可用或未配置时静默跳过，不影响对话本身 */
+async function logMessage(row: {
+  session_id: string;
+  locale: string;
+  role: "user" | "assistant";
+  content: string;
+  ip_hash: string;
+}) {
+  if (!hasSupabase) return;
+  try {
+    await adminClient().from("chat_messages").insert(row);
+  } catch (error) {
+    console.warn("[chat] 对话记录写入失败", error);
+  }
+}
+
 function upstreamErrorMessage(status: number, detail: string): string {
   const lower = detail.toLowerCase();
 
   // Google 对无效 Key 返回的是 400 而不是 401，需要看内容判断
   if (lower.includes("api key not valid") || lower.includes("api_key_invalid")) {
-    return "Gemini API Key 无效，请检查 .env.local 里的 GEMINI_API_KEY";
+    return "Gemini API Key 无效，请检查 GEMINI_API_KEY";
+  }
+  // Key 存在但被「API 限制」挡住：通常是创建 Key 时勾选了限制却没加入 Generative Language API
+  if (lower.includes("api_key_service_blocked") || lower.includes("are blocked")) {
+    return "这个 Gemini Key 被 API 限制拦截了：请在 Google Cloud 控制台把该 Key 的「API 限制」改为不限制，或加入 Generative Language API";
+  }
+  if (lower.includes("service_disabled") || lower.includes("has not been used in project")) {
+    return "该项目尚未启用 Generative Language API，请在 Google Cloud 控制台启用后重试";
   }
   if (status === 400) return `请求被模型拒绝（${detail}）`;
   if (status === 401 || status === 403) return "Gemini API Key 无权限，请检查 GEMINI_API_KEY";
@@ -161,7 +166,8 @@ export async function POST(req: Request) {
     );
   }
 
-  const limit = rateLimit(clientIp(req));
+  const ip = clientIp(req);
+  const limit = rateLimit(ip);
   if (!limit.ok) {
     return Response.json(
       { error: "请求过于频繁，请稍后再试" },
@@ -176,7 +182,7 @@ export async function POST(req: Request) {
     return Response.json({ error: "请求体不是合法 JSON" }, { status: 400 });
   }
 
-  const body = payload as { messages?: unknown; locale?: unknown };
+  const body = payload as { messages?: unknown; locale?: unknown; sessionId?: unknown };
   const messages = parseMessages(body.messages);
   if (!messages) {
     return Response.json(
@@ -186,6 +192,19 @@ export async function POST(req: Request) {
   }
 
   const locale = isLocale(body.locale) ? body.locale : "zh";
+  const sessionId = typeof body.sessionId === "string" ? body.sessionId.slice(0, 64) : "";
+  const ipHash = hashIp(ip);
+
+  // 学生提问先落库（失败不影响对话）
+  if (sessionId) {
+    void logMessage({
+      session_id: sessionId,
+      locale,
+      role: "user",
+      content: messages.at(-1)!.content,
+      ip_hash: ipHash,
+    });
+  }
 
   const generationConfig: Record<string, unknown> = {
     temperature: 0.35,
@@ -236,12 +255,26 @@ export async function POST(req: Request) {
     );
   }
 
-  return new Response(toTextStream(upstream.body), {
-    headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "no-cache, no-transform",
-      // 防止反向代理缓冲，保证流式效果
-      "X-Accel-Buffering": "no",
+  return new Response(
+    toTextStream(upstream.body, (text) => {
+      // 模型回答完整结束后落库
+      if (sessionId && text) {
+        void logMessage({
+          session_id: sessionId,
+          locale,
+          role: "assistant",
+          content: text,
+          ip_hash: ipHash,
+        });
+      }
+    }),
+    {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+        // 防止反向代理缓冲，保证流式效果
+        "X-Accel-Buffering": "no",
+      },
     },
-  });
+  );
 }

@@ -21,8 +21,11 @@ type LocaleContextValue = {
   locale: Locale;
   /** 切换语言 = 跳到对应语言的 URL，保证每种语言都有独立可收录的地址 */
   setLocale: (next: Locale) => void;
-  /** 取四语文案中当前语言的一条 */
-  t: (value: Localized) => string;
+  /**
+   * 取四语文案中当前语言的一条。
+   * 传了 key 时，优先用后台保存过的覆盖值（content_overrides 表）。
+   */
+  t: (value: Localized, key?: string) => string;
 };
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
@@ -34,9 +37,12 @@ const LocaleContext = createContext<LocaleContextValue | null>(null);
 export function LocaleProvider({
   children,
   initialLocale = defaultLocale,
+  overrides = {},
 }: {
   children: ReactNode;
   initialLocale?: Locale;
+  /** 后台改过的文案，key 形如 announcement.text|lo */
+  overrides?: Record<string, string>;
 }) {
   const locale = initialLocale;
   const router = useRouter();
@@ -51,7 +57,16 @@ export function LocaleProvider({
     [locale, router],
   );
 
-  const t = useCallback((value: Localized) => pick(value, locale), [locale]);
+  const t = useCallback(
+    (value: Localized, key?: string) => {
+      if (key) {
+        const custom = overrides[`${key}|${locale}`];
+        if (custom && custom.trim()) return custom;
+      }
+      return pick(value, locale);
+    },
+    [locale, overrides],
+  );
 
   const value = useMemo<LocaleContextValue>(
     () => ({ locale, setLocale, t }),

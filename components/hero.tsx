@@ -102,7 +102,7 @@ export function Hero() {
             </h1>
 
             <p className="mt-5 max-w-xl text-[14.5px] leading-[1.9] text-paper/88">
-              {t(hero.lead)}
+              {t(hero.lead, "hero.lead")}
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">

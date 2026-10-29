@@ -7,12 +7,14 @@ import { SiteFooter } from "@/components/site-footer";
 import { Reveal } from "@/components/reveal";
 import { Icon } from "@/components/icons";
 import { Gallery } from "@/components/gallery";
+import { ApplyForm } from "@/components/apply-form";
 import { useLocale } from "@/components/locale-provider";
 import {
   about,
   academics,
   admissions,
   announcement,
+  apply,
   contact,
   faq,
   gallery,
@@ -47,10 +49,10 @@ function AnnouncementBand() {
                 ANNOUNCEMENT · {t(announcement.schoolYear)}
               </p>
               <p className="mt-2 font-serif text-[17px] leading-snug text-pine md:text-[20px]">
-                {t(announcement.text)}
+                {t(announcement.text, "announcement.text")}
               </p>
               <p className="mt-2 text-[12.5px] leading-relaxed text-cinnabar">
-                {t(announcement.deadline)}
+                {t(announcement.deadline, "announcement.deadline")}
               </p>
             </div>
           </div>
@@ -262,7 +264,7 @@ function Admissions() {
             </h2>
           </div>
           <p className="max-w-sm text-[13px] leading-relaxed text-ink-soft">
-            {t(announcement.text)}
+            {t(announcement.text, "announcement.text")}
           </p>
         </div>
 
@@ -377,7 +379,7 @@ function Admissions() {
                 </p>
                 <div className="mt-6 h-px bg-paper/15" />
                 <a
-                  href="#contact"
+                  href="#apply"
                   className="mt-6 flex items-center justify-between border border-paper/25 px-4 py-3 text-[13px] text-paper transition-colors hover:border-paper/50 hover:bg-paper/5"
                 >
                   {t(ui.applyOnline)}
@@ -672,10 +674,10 @@ function Contact() {
                   {t(announcement.schoolYear)}
                 </p>
                 <p className="mt-4 font-serif text-[19px] leading-snug">
-                  {t(announcement.text)}
+                  {t(announcement.text, "announcement.text")}
                 </p>
                 <p className="mt-4 text-[12.5px] leading-relaxed text-paper/60">
-                  {t(announcement.deadline)}
+                  {t(announcement.deadline, "announcement.deadline")}
                 </p>
                 <div className="mt-7 space-y-2.5">
                   {contact.phones.map((phone, i) => (
@@ -762,7 +764,7 @@ function Faq() {
             {t(faq.title)}
           </h2>
           <p className="mt-4 max-w-2xl text-[14.5px] leading-[1.9] text-ink-soft">
-            {t(faq.intro)}
+            {t(faq.intro, "faq.intro")}
           </p>
         </Reveal>
 
@@ -789,6 +791,51 @@ function Faq() {
   );
 }
 
+/** 在线报名（替代原来的 Google 表单外链） */
+function Apply() {
+  const { t } = useLocale();
+
+  return (
+    <section id="apply" className="bg-paper-2 py-20 md:py-28">
+      <div className="shell">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-14">
+          <div className="lg:col-span-5">
+            <div className="flex items-center gap-3">
+              <span className="h-px w-8 bg-cinnabar" />
+              <p className="text-[11px] font-medium tracking-[0.26em] text-cinnabar">
+                {t(apply.eyebrow)}
+              </p>
+            </div>
+            <h2 className="mt-4 text-[clamp(1.8rem,3.2vw,2.6rem)] leading-tight text-pine">
+              {t(apply.title)}
+            </h2>
+            <p className="mt-5 max-w-md text-[13.5px] leading-[1.95] text-ink-soft">
+              {t(apply.intro, "apply.intro")}
+            </p>
+
+            <div className="mt-8 space-y-3 border-t border-pine/12 pt-6">
+              {contact.phones.slice(0, 2).map((phone) => (
+                <a
+                  key={phone.tel}
+                  href={`tel:${phone.tel}`}
+                  className="flex items-center gap-2.5 text-[13.5px] text-pine transition-colors hover:text-cinnabar"
+                >
+                  <Icon name="phone" className="h-4 w-4 opacity-60" />
+                  {phone.value}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="lg:col-span-7">
+            <ApplyForm />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function HomePage() {
   return (
     <>
@@ -799,6 +846,7 @@ export function HomePage() {
         <About />
         <Academics />
         <Admissions />
+        <Apply />
         <CampusLife />
         <Welfare />
         <Faq />
