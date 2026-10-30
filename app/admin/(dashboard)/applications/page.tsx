@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin-auth";
 import { adminClient } from "@/lib/supabase/admin";
+import { ConfirmButton } from "@/components/admin/confirm-button";
 import { deleteApplication, updateStatus } from "./actions";
 
 // 后台必须运行时渲染（读 cookie 判登录），不能静态预渲染
@@ -51,12 +52,27 @@ function fmtDate(iso: string) {
 export default async function ApplicationsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; q?: string }>;
+  searchParams: Promise<{ status?: string; q?: string; msg?: string }>;
 }) {
   const admin = await requireAdmin();
   const params = await searchParams;
   const status = params.status && params.status !== "all" ? params.status : null;
   const q = (params.q ?? "").trim();
+
+  // 操作后回到同一筛选条件
+  const backParams = new URLSearchParams();
+  if (status) backParams.set("status", status);
+  if (q) backParams.set("q", q);
+  const back = backParams.toString();
+
+  const MSG: Record<string, { text: string; tone: "ok" | "err" }> = {
+    saved: { text: "已保存，学生状态已更新。", tone: "ok" },
+    deleted: { text: "已删除这条报名记录。", tone: "ok" },
+    failed: { text: "删除失败，请稍后重试。", tone: "err" },
+    denied: { text: "当前账号没有删除权限。", tone: "err" },
+    invalid: { text: "操作参数不完整，请刷新页面重试。", tone: "err" },
+  };
+  const msg = params.msg ? MSG[params.msg] : null;
 
   let query = adminClient()
     .from("applications")
@@ -126,6 +142,18 @@ export default async function ApplicationsPage({
           </button>
         </form>
       </div>
+
+      {msg && (
+        <p
+          className={`border-l-2 px-3.5 py-2.5 text-[12.5px] leading-relaxed ${
+            msg.tone === "ok"
+              ? "border-pine bg-pine/8 text-pine"
+              : "border-cinnabar bg-cinnabar/8 text-cinnabar"
+          }`}
+        >
+          {msg.text}
+        </p>
+      )}
 
       {error && (
         <p className="border-l-2 border-cinnabar bg-cinnabar/8 px-3 py-2 text-[12.5px] text-cinnabar">
@@ -214,6 +242,7 @@ export default async function ApplicationsPage({
               <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-pine/8 pt-3">
                 <form action={updateStatus} className="flex flex-wrap items-center gap-2">
                   <input type="hidden" name="id" value={row.id} />
+                  <input type="hidden" name="back" value={back} />
                   <select
                     name="status"
                     defaultValue={row.status}
@@ -242,12 +271,13 @@ export default async function ApplicationsPage({
                 {admin.role === "admin" && (
                   <form action={deleteApplication} className="ml-auto">
                     <input type="hidden" name="id" value={row.id} />
-                    <button
-                      type="submit"
+                    <input type="hidden" name="back" value={back} />
+                    <ConfirmButton
+                      message={`确定删除 ${row.full_name} 的报名记录？删除后无法恢复。`}
                       className="text-[12px] text-ink-soft/50 transition-colors hover:text-cinnabar"
                     >
                       删除
-                    </button>
+                    </ConfirmButton>
                   </form>
                 )}
               </div>

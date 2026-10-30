@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin-auth";
 import { adminClient } from "@/lib/supabase/admin";
+import { ConfirmButton } from "@/components/admin/confirm-button";
 import { deleteLead, setLeadHandled } from "./actions";
 
 // 后台必须运行时渲染（读 cookie 判登录），不能静态预渲染
@@ -34,11 +35,21 @@ function fmtDate(iso: string) {
 export default async function LeadsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string }>;
+  searchParams: Promise<{ filter?: string; msg?: string }>;
 }) {
   const admin = await requireAdmin();
   const params = await searchParams;
   const filter = params.filter === "all" ? "all" : "open";
+
+  const MSG: Record<string, { text: string; tone: "ok" | "err" }> = {
+    handled: { text: "已标记为已处理。", tone: "ok" },
+    reopened: { text: "已恢复为未处理。", tone: "ok" },
+    deleted: { text: "已删除这条留言。", tone: "ok" },
+    failed: { text: "操作失败，请稍后重试。", tone: "err" },
+    denied: { text: "当前账号没有删除权限。", tone: "err" },
+    invalid: { text: "操作参数不完整，请刷新页面重试。", tone: "err" },
+  };
+  const msg = params.msg ? MSG[params.msg] : null;
 
   const db = adminClient();
 
@@ -91,6 +102,18 @@ export default async function LeadsPage({
           })}
         </div>
       </header>
+
+      {msg && (
+        <p
+          className={`border-l-2 px-3.5 py-2.5 text-[12.5px] leading-relaxed ${
+            msg.tone === "ok"
+              ? "border-pine bg-pine/8 text-pine"
+              : "border-cinnabar bg-cinnabar/8 text-cinnabar"
+          }`}
+        >
+          {msg.text}
+        </p>
+      )}
 
       {error && (
         <p className="border-l-2 border-cinnabar bg-cinnabar/8 px-3 py-2 text-[12.5px] text-cinnabar">
@@ -151,6 +174,7 @@ export default async function LeadsPage({
                 <form action={setLeadHandled}>
                   <input type="hidden" name="id" value={row.id} />
                   <input type="hidden" name="handled" value={row.handled ? "0" : "1"} />
+                  <input type="hidden" name="back" value={filter} />
                   <button
                     type="submit"
                     className={`border px-3 py-1.5 text-[12px] transition-colors ${
@@ -172,12 +196,13 @@ export default async function LeadsPage({
                 {admin.role === "admin" && (
                   <form action={deleteLead} className="ml-auto">
                     <input type="hidden" name="id" value={row.id} />
-                    <button
-                      type="submit"
+                    <input type="hidden" name="back" value={filter} />
+                    <ConfirmButton
+                      message={`确定删除 ${row.name || row.phone} 的这条留言？删除后无法恢复。`}
                       className="px-2 py-1.5 text-[12px] text-ink-soft/60 transition-colors hover:text-cinnabar"
                     >
                       删除
-                    </button>
+                    </ConfirmButton>
                   </form>
                 )}
               </div>
