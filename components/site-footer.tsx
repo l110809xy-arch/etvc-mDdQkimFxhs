@@ -66,7 +66,7 @@ export function SiteFooter() {
                     <a
                       key={p.value}
                       href={`tel:${p.tel}`}
-                      className="-my-1 inline-block py-1 transition-colors hover:text-gold"
+                      className="-my-2 inline-block py-2 transition-colors hover:text-gold"
                     >
                       {p.value}
                     </a>
@@ -79,7 +79,7 @@ export function SiteFooter() {
                   href={contact.facebook.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="-my-1 inline-block py-1 transition-colors hover:text-gold"
+                  className="-my-2 inline-block py-2 transition-colors hover:text-gold"
                 >
                   {contact.facebook.value}
                 </a>
@@ -98,7 +98,7 @@ export function SiteFooter() {
                   <li key={t(link.label)}>
                     <a
                       href={link.href}
-                      className="-my-1.5 inline-block py-1.5 text-[12.5px] text-paper/55 transition-colors hover:text-gold"
+                      className="-my-2 inline-block py-2 text-[12.5px] text-paper/55 transition-colors hover:text-gold"
                     >
                       {t(link.label)}
                     </a>
@@ -133,10 +133,10 @@ export function SiteFooter() {
             © 2026 {t(school.name)}（{school.abbr}）· {contact.addressEn}
           </p>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
-            <span className="py-1">{t(footer.partnerLine)}</span>
+            <span className="py-2">{t(footer.partnerLine)}</span>
             <a
               href={SITE_URL}
-              className="inline-block py-1 tracking-[0.06em] transition-colors hover:text-gold"
+              className="-my-2 inline-block py-2 tracking-[0.06em] transition-colors hover:text-gold"
             >
               {SITE_HOST}
             </a>
