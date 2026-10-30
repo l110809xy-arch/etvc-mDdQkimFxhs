@@ -19,6 +19,7 @@ import {
   welfare,
 } from "./content";
 import { type Locale, type Localized } from "./i18n";
+import { SITE_URL } from "./seo";
 
 const zh = (v: Localized) => v.zh;
 const en = (v: Localized) => v.en;
@@ -47,7 +48,7 @@ export function buildKnowledgeBase(): string {
   push(
     `- 合作办学单位：${zh(school.partner)}（${en(school.partner)}，${lo(school.partner)}，${ko(school.partner)}）`,
   );
-  push(`- 官方网站：${school.website}`);
+  push(`- 官方网站：${SITE_URL}`);
   push("");
 
   push("## 2. 建校背景");

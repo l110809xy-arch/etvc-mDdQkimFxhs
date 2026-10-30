@@ -1,15 +1,13 @@
 import Link from "next/link";
-import type { Metadata } from "next";
 import { locales, localeMeta } from "@/lib/i18n";
 import { localePath } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "页面不存在 404 | 民族职业技术学院 ETVC",
-  description: "你访问的页面不存在，请返回首页。",
-  robots: { index: false, follow: true },
-};
-
-export default function NotFound() {
+/**
+ * 404 页面主体。
+ * 拆成 route group 后每个根布局都需要自己的 not-found.tsx，
+ * 视图统一放这里，三处只做薄封装，避免文案走样。
+ */
+export function NotFoundView() {
   return (
     <main className="flex flex-1 items-center justify-center bg-paper px-5 py-24">
       <div className="w-full max-w-xl text-center">

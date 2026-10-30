@@ -36,7 +36,6 @@ export const school = {
     "ແນວລາວສ້າງຊາດ",
     "라오스건국전선",
   ),
-  website: "www.etvc.la",
 };
 
 /** 文档 1. Header Menu：六项，顺序与名称照文档 */
@@ -114,12 +113,6 @@ export const ui = {
   semesterUnit: L(" / 学期", " / term", " / ເທີມ", " / 학기"),
   scholarshipLink: L("奖学金", "Scholarships", "ທຶນການສຶກສາ", "장학금"),
   contactUs: L("联系我们", "Contact us", "ຕິດຕໍ່ເຮົາ", "연락처"),
-  demoNote: L(
-    "本站为测试站点，内容依据校方文档整理",
-    "Test site — content based on the college specification",
-    "ເວັບທົດສອບ — ເນື້ອຫາອີງຕາມເອກະສານຂອງວິທະຍາໄລ",
-    "테스트 사이트 — 대학 문서를 기준으로 작성",
-  ),
 };
 
 /** 文档 2.1 Home Page */
@@ -688,27 +681,27 @@ export const footer = {
     {
       title: L("关于学院", "About", "ກ່ຽວກັບວິທະຍາໄລ", "대학 소개"),
       links: [
-        L("历史与沿革", "History", "ປະຫວັດ", "연혁"),
-        L("使命", "Mission", "ພາລະກິດ", "사명"),
-        L("校园生活", "Campus life", "ຊີວິດໃນວິທະຍາໄລ", "캠퍼스 생활"),
+        { label: L("历史与沿革", "History", "ປະຫວັດ", "연혁"), href: "#about" },
+        { label: L("使命", "Mission", "ພາລະກິດ", "사명"), href: "#about" },
+        { label: L("校园生活", "Campus life", "ຊີວິດໃນວິທະຍາໄລ", "캠퍼스 생활"), href: "#campus" },
       ],
     },
     {
       title: L("课程与学费", "Programmes & fees", "ຫຼັກສູດ ແລະ ຄ່າຮຽນ", "교육과정·등록금"),
       links: [
-        L("三年制高职课程", "Higher Diploma", "ຫຼັກສູດ 3 ປີ", "3년제 과정"),
-        L("第一学年课程", "Year 1 curriculum", "ແຜນການຮຽນ ປີທີ 1", "1학년 교육과정"),
-        L("学费标准", "Tuition", "ຄ່າທຳນຽມ", "등록금"),
-        L("奖学金", "Scholarships", "ທຶນການສຶກສາ", "장학금"),
+        { label: L("三年制高职课程", "Higher Diploma", "ຫຼັກສູດ 3 ປີ", "3년제 과정"), href: "#academics" },
+        { label: L("第一学年课程", "Year 1 curriculum", "ແຜນການຮຽນ ປີທີ 1", "1학년 교육과정"), href: "#academics" },
+        { label: L("学费标准", "Tuition", "ຄ່າທຳນຽມ", "등록금"), href: "#admission" },
+        { label: L("奖学金", "Scholarships", "ທຶນການສຶກສາ", "장학금"), href: "#welfare" },
       ],
     },
     {
       title: L("招生", "Admissions", "ການຮັບສະໝັກ", "입학"),
       links: [
-        L("2026-2027 招生", "2026-2027 intake", "ຮັບສະໝັກ 2026-2027", "2026-2027 입학"),
-        L("报名流程", "How to apply", "ຂັ້ນຕອນການສະໝັກ", "지원 절차"),
-        L("报名材料", "Documents", "ເອກະສານປະກອບ", "제출 서류"),
-        L("报名截止", "Deadline", "ກຳນົດຮັບສະໝັກ", "접수 마감"),
+        { label: L("2026-2027 招生", "2026-2027 intake", "ຮັບສະໝັກ 2026-2027", "2026-2027 입학"), href: "#admission" },
+        { label: L("报名流程", "How to apply", "ຂັ້ນຕອນການສະໝັກ", "지원 절차"), href: "#apply" },
+        { label: L("报名材料", "Documents", "ເອກະສານປະກອບ", "제출 서류"), href: "#apply" },
+        { label: L("报名截止", "Deadline", "ກຳນົດຮັບສະໝັກ", "접수 마감"), href: "#announcement" },
       ],
     },
   ],

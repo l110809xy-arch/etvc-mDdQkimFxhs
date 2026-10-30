@@ -27,13 +27,30 @@ const nextConfig: NextConfig = {
 
   /**
    * 基础安全响应头。
-   * 不加 CSP：Next 的内联启动脚本需要 nonce，硬上会白屏，收益不如风险。
+   *
+   * CSP 说明：Next 的启动脚本是内联的，用 nonce 方案需要 middleware 动态生成，
+   * 会让全站失去静态化。这里退一步用 'unsafe-inline'，仍然能挡住
+   * 外域脚本、外域连接、base-uri / form-action 劫持和内嵌框架，属于净收益。
    */
   async headers() {
+    const csp = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob:",
+      "font-src 'self' data:",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+      "frame-ancestors 'self'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "object-src 'none'",
+    ].join("; ");
+
     return [
       {
         source: "/:path*",
         headers: [
+          { key: "Content-Security-Policy", value: csp },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },

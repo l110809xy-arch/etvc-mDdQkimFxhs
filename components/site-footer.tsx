@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Icon } from "./icons";
 import { useLocale } from "./locale-provider";
 import { announcement, contact, footer, school, ui } from "@/lib/content";
+import { SITE_HOST, SITE_URL } from "@/lib/seo";
 
 export function SiteFooter() {
   const { locale, t } = useLocale();
@@ -65,7 +66,7 @@ export function SiteFooter() {
                     <a
                       key={p.value}
                       href={`tel:${p.tel}`}
-                      className="transition-colors hover:text-gold"
+                      className="-my-1 inline-block py-1 transition-colors hover:text-gold"
                     >
                       {p.value}
                     </a>
@@ -78,7 +79,7 @@ export function SiteFooter() {
                   href={contact.facebook.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="transition-colors hover:text-gold"
+                  className="-my-1 inline-block py-1 transition-colors hover:text-gold"
                 >
                   {contact.facebook.value}
                 </a>
@@ -94,12 +95,12 @@ export function SiteFooter() {
               </h3>
               <ul className="mt-5 space-y-3">
                 {col.links.map((link) => (
-                  <li key={t(link)}>
+                  <li key={t(link.label)}>
                     <a
-                      href="#"
-                      className="text-[12.5px] text-paper/55 transition-colors hover:text-gold"
+                      href={link.href}
+                      className="-my-1.5 inline-block py-1.5 text-[12.5px] text-paper/55 transition-colors hover:text-gold"
                     >
-                      {t(link)}
+                      {t(link.label)}
                     </a>
                   </li>
                 ))}
@@ -131,17 +132,14 @@ export function SiteFooter() {
           <p>
             © 2026 {t(school.name)}（{school.abbr}）· {contact.addressEn}
           </p>
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-            <span>{t(footer.partnerLine)}</span>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
+            <span className="py-1">{t(footer.partnerLine)}</span>
             <a
-              href="https://www.etvc.la"
-              target="_blank"
-              rel="noreferrer"
-              className="tracking-[0.06em] transition-colors hover:text-gold"
+              href={SITE_URL}
+              className="inline-block py-1 tracking-[0.06em] transition-colors hover:text-gold"
             >
-              {school.website}
+              {SITE_HOST}
             </a>
-            <span className="text-paper/20">{t(ui.demoNote)}</span>
           </div>
         </div>
       </div>

@@ -19,6 +19,9 @@ export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://etvc-website.vercel.app"
 ).replace(/\/+$/, "");
 
+/** 站点主机名（去掉协议），页脚与 AI 知识库展示用 */
+export const SITE_HOST = SITE_URL.replace(/^https?:\/\//, "");
+
 export function absoluteUrl(path: string): string {
   return `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;
 }
@@ -33,30 +36,34 @@ export function languageAlternates(): Record<string, string> {
   return map;
 }
 
-/** 每种语言独立的标题与描述（不要用一套中文塞给所有语言） */
+/**
+ * 每种语言独立的标题与描述（不要用一套中文塞给所有语言）。
+ * description 控制在 150 字符（中日韩约 80 字）以内，
+ * 超出会被搜索结果截断，反而看不全重点。
+ */
 const seoCopy: Record<Locale, { title: string; description: string; ogAlt: string }> = {
   zh: {
     title: "民族职业技术学院 ETVC｜学好双语 发展职业 走向国际",
     description:
-      "民族职业技术学院（ETVC）2020 年与老挝建国阵线合作成立，位于万象市赛塔尼县，开设三年制高等职业课程，专注商务汉语与职业教育，每年提供 50 个奖学金名额。2026—2027 学年招生中。",
+      "民族职业技术学院（ETVC）2020 年与老挝建国阵线合作成立，位于万象，开设三年制高等职业课程，专注商务汉语，每年 50 个奖学金名额。2026—2027 学年招生中。",
     ogAlt: "民族职业技术学院校园主楼",
   },
   lo: {
     title: "ວິທະຍາໄລເຕັກນິກວິຊາຊີບຊົນເຜົ່າ (ETVC) | ຮຽນສອງພາສາ ພັດທະນາວິຊາຊີບ",
     description:
-      "ວິທະຍາໄລເຕັກນິກວິຊາຊີບຊົນເຜົ່າ (ETVC) ສ້າງຕັ້ງປີ 2020 ຮ່ວມກັບແນວລາວສ້າງຊາດ ຕັ້ງຢູ່ເມືອງໄຊທານີ ນະຄອນຫຼວງວຽງຈັນ, ເປີດສອນຫຼັກສູດຊັ້ນສູງ 3 ປີ ສຸມໃສ່ພາສາຈີນທຸລະກິດ ແລະ ວິຊາຊີບ, ມອບທຶນການສຶກສາ 50 ທຶນຕໍ່ປີ.",
+      "ວິທະຍາໄລເຕັກນິກວິຊາຊີບຊົນເຜົ່າ (ETVC) ຕັ້ງຢູ່ວຽງຈັນ, ສ້າງຕັ້ງປີ 2020. ສອນພາສາຈີນທຸລະກິດ 3 ປີ, ມອບ 50 ທຶນຕໍ່ປີ. ຮັບສະໝັກ 2026-2027.",
     ogAlt: "ອາຄານຫຼັກ ວິທະຍາໄລເຕັກນິກວິຊາຊີບຊົນເຜົ່າ",
   },
   en: {
     title: "Ethnic Technical and Vocational College (ETVC) | Vientiane, Laos",
     description:
-      "ETVC is a three-year higher vocational college in Vientiane, Laos, founded in 2020 with the Lao Front for National Development. Business Chinese and vocational programmes, 50 scholarships per year. Enrolment open for 2026-2027.",
+      "ETVC is a three-year vocational college in Vientiane, Laos, teaching business Chinese. Founded 2020. 50 scholarships a year. 2026-2027 enrolment now open.",
     ogAlt: "ETVC main campus building in Vientiane, Laos",
   },
   ko: {
     title: "민족직업기술대학 (ETVC) | 라오스 비엔티안 3년제 직업대학",
     description:
-      "민족직업기술대학(ETVC)은 2020년 라오스건국전선과 함께 설립된 비엔티안의 3년제 고등직업대학입니다. 비즈니스 중국어와 직업 교육을 제공하며 매년 50명에게 장학금을 지급합니다. 2026-2027학년도 신입생 모집 중.",
+      "민족직업기술대학(ETVC)은 비엔티안의 3년제 고등직업대학입니다. 비즈니스 중국어를 가르치며 매년 50명에게 장학금을 지급합니다. 2026-2027학년도 모집 중.",
     ogAlt: "라오스 비엔티안 민족직업기술대학 본관",
   },
 };
