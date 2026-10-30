@@ -7,7 +7,9 @@
  *
  * 环境变量（.env.local）：
  *   GEMINI_API_KEY=   必填，Google AI Studio 申请
- *   GEMINI_MODEL=     选填，默认 gemini-2.5-flash
+ *   GEMINI_MODEL=     选填，默认 gemini-3.5-flash
+ *
+ * 注意：gemini-2.5-flash 已对新用户停用（返回 404），不要再用旧模型名。
  */
 
 import { isLocale } from "@/lib/i18n";
@@ -15,7 +17,7 @@ import { buildSystemPrompt } from "@/lib/knowledge";
 import { clientIp, createLimiter } from "@/lib/rate-limit";
 import { adminClient, hasSupabase, hashIp } from "@/lib/supabase/admin";
 
-const MODEL = process.env.GEMINI_MODEL?.trim() || "gemini-2.5-flash";
+const MODEL = process.env.GEMINI_MODEL?.trim() || "gemini-3.5-flash";
 const API_KEY =
   process.env.GEMINI_API_KEY?.trim() || process.env.GOOGLE_API_KEY?.trim() || "";
 
