@@ -185,10 +185,10 @@ export const announcement = {
     "고등직업과정(3년제) 2026-2027학년도 신입생 모집 중",
   ),
   deadline: L(
-    "报名时间：即日起至 2025 年 09 月 21 日",
-    "Applications open now until 21/09/2025",
-    "ເປີດຮັບສະໝັກແຕ່ນີ້ ຫາ ວັນທີ 21/09/2025",
-    "접수 기간: 현재 ~ 2025년 9월 21일",
+    "报名时间：即日起接受报名，名额满即止",
+    "Applications open now — places are filled on a first-come basis",
+    "ເປີດຮັບສະໝັກແຕ່ນີ້ ຈົນກວ່າຈະເຕັມ",
+    "접수 기간: 현재 접수 중 · 정원 마감 시까지",
   ),
   schoolYear: L("2026-2027 学年", "2026-2027", "ປີການສຶກສາ 2026-2027", "2026-2027학년도"),
 };
@@ -971,6 +971,12 @@ export const apply = {
     "정보가 접수되었습니다. 입학 담당자가 1~3 영업일 내에 연락드립니다. 급한 문의는 +856 20 5825 8055로 전화하세요.",
   ),
   successAgain: L("再填一份", "Submit another", "ສະໝັກເພີ່ມອີກ", "추가 제출"),
+  successWhatsapp: L(
+    "加 WhatsApp 催一下",
+    "Message us on WhatsApp",
+    "ຕິດຕໍ່ທາງ WhatsApp",
+    "WhatsApp으로 문의하기",
+  ),
   required: L("必填", "Required", "ຈຳເປັນ", "필수"),
   errors: {
     required: L("请填写必填项", "Please fill in the required fields", "ກະລຸນາຕື່ມຊ່ອງທີ່ຈຳເປັນ", "필수 항목을 입력해 주세요"),

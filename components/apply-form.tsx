@@ -89,10 +89,20 @@ export function ApplyForm() {
         <p className="mx-auto mt-3 max-w-md text-[13.5px] leading-relaxed text-ink-soft">
           {t(apply.successBody)}
         </p>
+        {/* 提交完是最想立刻得到确认的时刻，给一条直达 WhatsApp 的路 */}
+        <a
+          href="https://wa.me/8562058258055"
+          target="_blank"
+          rel="noreferrer"
+          className="mx-auto mt-6 inline-flex items-center gap-2 bg-pine px-5 py-2.5 text-[13px] text-paper transition-colors hover:bg-pine/90"
+        >
+          {t(apply.successWhatsapp)}
+          <Icon name="arrowUpRight" className="h-3.5 w-3.5 opacity-80" />
+        </a>
         <button
           type="button"
           onClick={() => setStatus("idle")}
-          className="mt-6 border border-pine/25 px-5 py-2.5 text-[13px] text-pine transition-colors hover:bg-pine hover:text-paper"
+          className="mx-auto mt-3 block border border-pine/25 px-5 py-2.5 text-[13px] text-pine transition-colors hover:bg-pine hover:text-paper"
         >
           {t(apply.successAgain)}
         </button>

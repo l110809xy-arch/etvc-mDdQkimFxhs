@@ -9,6 +9,7 @@ const items = [
   { href: "/admin/leads", label: "留言咨询" },
   { href: "/admin/content", label: "内容编辑" },
   { href: "/admin/chats", label: "客服对话" },
+  { href: "/admin/security", label: "账号安全" },
 ];
 
 export function AdminNav() {

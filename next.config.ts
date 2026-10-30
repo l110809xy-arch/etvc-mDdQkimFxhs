@@ -24,6 +24,31 @@ const nextConfig: NextConfig = {
       },
     },
   },
+
+  /**
+   * 基础安全响应头。
+   * 不加 CSP：Next 的内联启动脚本需要 nonce，硬上会白屏，收益不如风险。
+   */
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(), payment=()",
+          },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
