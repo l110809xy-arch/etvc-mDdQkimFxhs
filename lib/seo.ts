@@ -165,6 +165,18 @@ export function buildJsonLd(locale: Locale) {
   const websiteId = `${SITE_URL}/#website`;
   const courseId = `${SITE_URL}/#course`;
 
+  /**
+   * 机构实体（GEO 核心）。
+   *
+   * 生成式引擎判断「这是哪所学校」靠的就是这一段：
+   * - name 用当前语言的正式全称，alternateName 补齐中/英/老/韩四种写法，
+   *   让 AI 在四种语言的提问里都能对到同一个实体；
+   * - address 拆到 streetAddress / locality / region / country，
+   *   比塞一整个字符串更容易被结构化匹配；
+   * - contactPoint 单独给出招生电话与可用语言，
+   *   AI 回答「怎么联系招生办」时可以直接引用；
+   * - hasCredential 说明授予的文凭层级，避免被误判成语言培训班。
+   */
   const organization = {
     "@type": ["CollegeOrUniversity", "EducationalOrganization"],
     "@id": orgId,
@@ -176,22 +188,47 @@ export function buildJsonLd(locale: Locale) {
       "ວິທະຍາໄລເຕັກນິກວິຊາຊີບຊົນເຜົ່າ",
       "민족직업기술대학",
     ],
+    legalName: "Ethnic Technical and Vocational College",
     url: SITE_URL,
     logo: {
       "@type": "ImageObject",
       url: absoluteUrl("/images/logo.png"),
       caption: `${school.name[locale]} logo`,
     },
-    image: absoluteUrl("/images/campus-hero.jpg"),
+    image: [
+      absoluteUrl("/images/campus-hero.jpg"),
+      absoluteUrl("/images/classroom.jpg"),
+      absoluteUrl("/images/campus-group.jpg"),
+    ],
     description: seoCopy[locale].description,
     slogan: school.slogan[locale],
     foundingDate: school.founded,
-    founder: { "@type": "Organization", name: school.partner[locale] },
+    foundingLocation: {
+      "@type": "Place",
+      name: "Vientiane, Lao PDR",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Vientiane",
+        addressCountry: "LA",
+      },
+    },
+    founder: {
+      "@type": "Organization",
+      name: school.partner[locale],
+      alternateName: "Lao Front for National Development",
+    },
     telephone: contact.phones.map((phone) => phone.tel),
+    contactPoint: contact.phones.map((phone, i) => ({
+      "@type": "ContactPoint",
+      telephone: phone.tel,
+      contactType: i === 0 ? "admissions" : "customer service",
+      areaServed: ["LA", "CN", "KR"],
+      availableLanguage: ["lo", "zh", "en", "ko"],
+    })),
     address: {
       "@type": "PostalAddress",
-      streetAddress: "Ban Viengkham",
-      addressLocality: "Xaythany District",
+      streetAddress: "Ban Viengkham, Xaythany District",
+      addressLocality: "Vientiane",
       addressRegion: "Vientiane Capital",
       addressCountry: "LA",
     },
@@ -201,7 +238,16 @@ export function buildJsonLd(locale: Locale) {
       { "@type": "Country", name: "Korea" },
     ],
     knowsLanguage: ["lo", "zh", "en", "ko"],
-    sameAs: [contact.facebook.href],
+    hasCredential: {
+      "@type": "EducationalOccupationalCredential",
+      credentialCategory: "Higher Diploma",
+      educationalLevel: "Three-year higher vocational diploma",
+      competencyRequired: "Business Chinese",
+    },
+    /** 只收真实主页；Facebook 搜索页不是机构实体，写进 sameAs 会污染实体对齐 */
+    sameAs: /\/search\//.test(contact.facebook.href)
+      ? []
+      : [contact.facebook.href],
   };
 
   const website = {
