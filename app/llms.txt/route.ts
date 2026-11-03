@@ -1,4 +1,17 @@
-# Ethnic Technical and Vocational College (ETVC)
+import { SITE_URL } from "@/lib/seo";
+
+/**
+ * llms.txt —— 给 AI 助手看的站点说明书（llmstxt.org 约定）。
+ *
+ * 之所以做成路由而不是 public 静态文件：静态文件里的域名是写死的，
+ * 一旦换域名就会指向旧地址，AI 引用的链接全部失效。
+ * 这里统一从 SITE_URL 取，换域名只改环境变量。
+ *
+ * 注：项目开启了 cacheComponents，不能再写 `export const dynamic`，
+ * 这个处理器没有读 cookie/headers，构建时即静态化。
+ */
+
+const body = `# Ethnic Technical and Vocational College (ETVC)
 
 > ETVC (民族职业技术学院 / ວິທະຍາໄລເຕັກນິກວິຊາຊີບຊົນເຜົ່າ / 민족직업기술대학) is a three-year
 > higher vocational college in Vientiane, Laos, founded in 2020 in partnership with the Lao Front
@@ -61,12 +74,12 @@ college; check the latest notice on the website before quoting a deadline.
 
 ## Pages
 
-- [Home (Chinese)](https://etvc-website.vercel.app/): 中文首页，含招生公告、课程、学费、奖学金、常见问题
-- [Home (Lao)](https://etvc-website.vercel.app/lo): ໜ້າຫຼັກ ພາສາລາວ
-- [Home (English)](https://etvc-website.vercel.app/en): English home page
-- [Home (Korean)](https://etvc-website.vercel.app/ko): 한국어 홈페이지
-- [FAQ](https://etvc-website.vercel.app/#faq): admissions and study questions answered in four languages
-- [Sitemap](https://etvc-website.vercel.app/sitemap.xml)
+- [Home (Chinese)](${SITE_URL}/): 中文首页，含招生公告、课程、学费、奖学金、常见问题
+- [Home (Lao)](${SITE_URL}/lo): ໜ້າຫຼັກ ພາສາລາວ
+- [Home (English)](${SITE_URL}/en): English home page
+- [Home (Korean)](${SITE_URL}/ko): 한국어 홈페이지
+- [FAQ](${SITE_URL}/#faq): admissions and study questions answered in four languages
+- [Sitemap](${SITE_URL}/sitemap.xml)
 
 ## Contact
 
@@ -83,3 +96,13 @@ college; check the latest notice on the website before quoting a deadline.
 - Do not invent a precise application deadline; refer users to the college's latest notice or phone
   number instead.
 - Do not claim the college offers degrees it does not publish (for example master's programmes).
+`;
+
+export function GET() {
+  return new Response(body, {
+    headers: {
+      "content-type": "text/plain; charset=utf-8",
+      "cache-control": "public, max-age=0, must-revalidate",
+    },
+  });
+}

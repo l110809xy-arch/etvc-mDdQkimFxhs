@@ -14,9 +14,23 @@ import { localeMeta, locales, localePath, type Locale } from "./i18n";
 
 export { localePath };
 
-/** 站点根地址（不带结尾斜杠） */
+/**
+ * 正式站点地址。
+ *
+ * 官网域名 www.etvc.org 已绑定上线，但环境变量 NEXT_PUBLIC_SITE_URL 里
+ * 可能还留着早期的 *.vercel.app 临时地址。若不处理，canonical、hreflang、
+ * sitemap、og:url 会全部指向临时域名，搜索引擎会把两套地址当成重复内容，
+ * 分享卡片也会显示 vercel.app。
+ *
+ * 因此：环境变量缺失、或仍是 *.vercel.app 时，一律回退到正式域名；
+ * 将来换成别的自定义域名，只要把环境变量改成新域名即可，这里的回退不会生效。
+ */
+const OFFICIAL_SITE_URL = "https://www.etvc.org";
+
+const envSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://etvc-website.vercel.app"
+  !envSiteUrl || /\.vercel\.app$/i.test(envSiteUrl) ? OFFICIAL_SITE_URL : envSiteUrl
 ).replace(/\/+$/, "");
 
 /** 站点主机名（去掉协议），页脚与 AI 知识库展示用 */
