@@ -122,9 +122,13 @@ export function buildMetadata(locale: Locale): Metadata {
         ),
       images: [
         {
-          url: absoluteUrl("/images/campus-hero.jpg"),
-          width: 1600,
-          height: 900,
+          // 专用分享封面：1200×630（1.91:1），微信 / WhatsApp / X / Telegram
+          // 的标准卡片比例，145KB 也远低于各平台的抓取上限。
+          // 直接用 1600×900 的站点大图会被裁掉两侧，且 266KB 在部分平台抓不到。
+          url: absoluteUrl("/images/og-cover.jpg"),
+          width: 1200,
+          height: 630,
+          type: "image/jpeg",
           alt: copy.ogAlt,
         },
       ],
@@ -133,7 +137,7 @@ export function buildMetadata(locale: Locale): Metadata {
       card: "summary_large_image",
       title: copy.title,
       description: copy.description,
-      images: [absoluteUrl("/images/campus-hero.jpg")],
+      images: [absoluteUrl("/images/og-cover.jpg")],
     },
     robots: {
       index: true,

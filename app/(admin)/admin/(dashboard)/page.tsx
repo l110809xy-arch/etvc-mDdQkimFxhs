@@ -48,7 +48,7 @@ export default async function AdminHome() {
     { data: statsRow },
     { data: recent },
     { data: quotaRow },
-    { data: chatCount },
+    { count: chatMessages },
     { count: leadOpen },
   ] = await Promise.all([
     db.from("application_stats").select("*").single(),
@@ -58,7 +58,9 @@ export default async function AdminHome() {
       .order("created_at", { ascending: false })
       .limit(6),
     db.from("settings").select("value").eq("key", "admission.quota").maybeSingle(),
-    db.from("chat_messages").select("session_id").limit(2000),
+    // 原来是把最多 2000 行 session_id 拉到服务端再去重算会话数，
+    // 数据一多就会拖慢整页。改成 head 计数，只回一个数字。
+    db.from("chat_messages").select("id", { count: "exact", head: true }),
     db.from("leads").select("id", { count: "exact", head: true }).eq("handled", false),
   ]);
 
@@ -75,7 +77,6 @@ export default async function AdminHome() {
   }) as Stats;
 
   const quota = typeof quotaRow?.value === "number" ? quotaRow.value : 120;
-  const sessions = new Set((chatCount ?? []).map((r) => r.session_id as string)).size;
   const pct = Math.min(100, Math.round((stats.total / Math.max(1, quota)) * 100));
 
   const cards = [
@@ -229,7 +230,7 @@ export default async function AdminHome() {
           className="border border-pine/12 bg-paper p-4 transition-colors hover:border-pine/35"
         >
           <p className="text-[13.5px] text-pine">客服对话</p>
-          <p className="mt-1 text-[11.5px] text-ink-soft">{sessions} 个会话记录</p>
+          <p className="mt-1 text-[11.5px] text-ink-soft">{chatMessages ?? 0} 条消息记录</p>
         </Link>
       </section>
     </div>
