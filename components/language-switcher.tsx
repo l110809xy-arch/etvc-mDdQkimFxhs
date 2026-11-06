@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Icon } from "./icons";
 import { useLocale } from "./locale-provider";
-import { locales, localeMeta, localePath } from "@/lib/i18n";
+import { locales, localeMeta } from "@/lib/i18n";
 import { ui } from "@/lib/content";
 
 function Check({ className = "" }: { className?: string }) {
@@ -26,7 +26,7 @@ function Check({ className = "" }: { className?: string }) {
 
 /** 桌面端：导航右侧的语言下拉菜单 */
 export function LanguageSwitcher() {
-  const { locale, t } = useLocale();
+  const { locale, t, localizedHref } = useLocale();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -94,7 +94,7 @@ export function LanguageSwitcher() {
             return (
               <li key={code}>
                 <Link
-                  href={localePath(code)}
+                  href={localizedHref(code)}
                   hrefLang={localeMeta[code].htmlLang}
                   lang={localeMeta[code].htmlLang}
                   aria-current={active ? "page" : undefined}
@@ -130,7 +130,7 @@ export function LanguageSwitcher() {
 
 /** 移动端：抽屉菜单里的四语横排选项 */
 export function LanguageSwitcherMobile() {
-  const { locale, t } = useLocale();
+  const { locale, t, localizedHref } = useLocale();
 
   return (
     <div className="mt-2 border-t border-pine/8 pt-4">
@@ -143,7 +143,7 @@ export function LanguageSwitcherMobile() {
           return (
             <Link
               key={code}
-              href={localePath(code)}
+              href={localizedHref(code)}
               hrefLang={localeMeta[code].htmlLang}
               lang={localeMeta[code].htmlLang}
               aria-current={active ? "page" : undefined}

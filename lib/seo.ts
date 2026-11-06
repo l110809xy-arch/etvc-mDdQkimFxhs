@@ -9,6 +9,7 @@
  */
 
 import type { Metadata } from "next";
+import type { Article } from "./articles";
 import { academics, admissions, announcement, contact, faq, school, welfare } from "./content";
 import { localeMeta, locales, localePath, type Locale } from "./i18n";
 
@@ -358,3 +359,315 @@ export const siteFacts = {
   announcement: announcement.text,
   quota: welfare.quota,
 };
+
+// ───────────────────────────────────────────────────────────────
+// 文章（GEO 内容层）
+// ───────────────────────────────────────────────────────────────
+
+/**
+ * 文章列表页地址。
+ * 中文占根路径，其余语言带前缀 —— 与首页的 localePath 规则保持一致，
+ * 这样 /blog 与 /lo/blog 是同一份内容的不同语言版本，而不是两条互不相干的 URL。
+ */
+export function articleIndexPath(locale: Locale): string {
+  return locale === "zh" ? "/blog" : `/${locale}/blog`;
+}
+
+export function articlePath(locale: Locale, slug: string): string {
+  return `${articleIndexPath(locale)}/${slug}`;
+}
+
+/** 文章的 hreflang 映射：四种语言各一条，x-default 指向中文 */
+function articleAlternates(slug: string): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const code of locales) {
+    map[localeMeta[code].htmlLang] = absoluteUrl(articlePath(code, slug));
+  }
+  map["x-default"] = absoluteUrl(articlePath("zh", slug));
+  return map;
+}
+
+export function buildArticleMetadata(
+  locale: Locale,
+  article: Article,
+): Metadata {
+  const url = absoluteUrl(articlePath(locale, article.slug));
+  const title = article.title[locale];
+  const description = article.description[locale];
+  const ogLocale = {
+    zh: "zh_CN",
+    lo: "lo_LA",
+    en: "en_US",
+    ko: "ko_KR",
+  }[locale];
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title,
+    description,
+    keywords: [
+      school.name[locale],
+      "ETVC",
+      ...article.title[locale].split(/[？?，,：:\s]+/).filter(Boolean),
+    ],
+    alternates: {
+      canonical: url,
+      languages: articleAlternates(article.slug),
+    },
+    openGraph: {
+      type: "article",
+      siteName: school.name[locale],
+      title,
+      description,
+      url,
+      locale: ogLocale,
+      publishedTime: article.publishedAt,
+      modifiedTime: article.updatedAt,
+      images: [
+        {
+          url: absoluteUrl("/images/og-cover.jpg"),
+          width: 1200,
+          height: 630,
+          type: "image/jpeg",
+          alt: school.name[locale],
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [absoluteUrl("/images/og-cover.jpg")],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+  };
+}
+
+/**
+ * 文章页的 JSON-LD。
+ *
+ * 三个节点各有分工：
+ * - Article   —— 告诉 AI「这是一篇有出处的文章」，author/publisher 指回机构实体，
+ *                让引用能落到学校头上，而不是变成一条无主信息；
+ * - BreadcrumbList —— 给出层级，搜索引擎用它替换掉 URL 那一行；
+ * - FAQPage   —— 把文章里的问答拆成独立可摘录单元，这是 AI 最常直接引用的一块。
+ *
+ * 注意 Article 与 FAQPage 的 @id 都挂在文章 URL 下，避免与首页 #faq 撞车。
+ */
+export function buildArticleJsonLd(locale: Locale, article: Article) {
+  const url = absoluteUrl(articlePath(locale, article.slug));
+  const orgId = `${SITE_URL}/#organization`;
+  const websiteId = `${SITE_URL}/#website`;
+  const indexUrl = absoluteUrl(articleIndexPath(locale));
+
+  const articleNode = {
+    "@type": "Article",
+    "@id": `${url}#article`,
+    headline: article.title[locale],
+    description: article.description[locale],
+    image: [
+      absoluteUrl("/images/campus-hero.jpg"),
+      absoluteUrl("/images/og-cover.jpg"),
+    ],
+    datePublished: article.publishedAt,
+    dateModified: article.updatedAt,
+    inLanguage: localeMeta[locale].htmlLang,
+    isPartOf: { "@id": websiteId },
+    mainEntityOfPage: { "@id": `${url}#webpage` },
+    author: { "@id": orgId },
+    publisher: { "@id": orgId },
+    about: { "@id": orgId },
+    articleSection: "Admissions",
+    keywords: [
+      school.name[locale],
+      "ETVC",
+      "tuition",
+      "scholarship",
+      "business Chinese",
+    ].join(", "),
+  };
+
+  const webPage = {
+    "@type": "WebPage",
+    "@id": `${url}#webpage`,
+    url,
+    name: article.title[locale],
+    description: article.description[locale],
+    inLanguage: localeMeta[locale].htmlLang,
+    isPartOf: { "@id": websiteId },
+    about: { "@id": orgId },
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: absoluteUrl("/images/campus-hero.jpg"),
+    },
+    breadcrumb: { "@id": `${url}#breadcrumb` },
+  };
+
+  const breadcrumb = {
+    "@type": "BreadcrumbList",
+    "@id": `${url}#breadcrumb`,
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: school.name[locale],
+        item: absoluteUrl(localePath(locale)),
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Q&A",
+        item: indexUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: article.title[locale],
+        item: url,
+      },
+    ],
+  };
+
+  const faqPage = {
+    "@type": "FAQPage",
+    "@id": `${url}#faq`,
+    inLanguage: localeMeta[locale].htmlLang,
+    isPartOf: { "@id": `${url}#webpage` },
+    about: { "@id": orgId },
+    mainEntity: article.faq.map((item) => ({
+      "@type": "Question",
+      name: item.q[locale],
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.a[locale],
+      },
+    })),
+  };
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [articleNode, webPage, breadcrumb, faqPage],
+  };
+}
+
+/** 问答列表页的标题与描述（单独写，不与文章标题混用） */
+const indexCopy: Record<Locale, { title: string; description: string }> = {
+  zh: {
+    title: "招生问答：ETVC 学费、奖学金与报名问题",
+    description:
+      "ETVC 学费、奖学金、报名材料、商务汉语课程的常见问题，每条都给出具体数字与出处。",
+  },
+  lo: {
+    title: "ຄຳຖາມ-ຄຳຕອບ: ຄ່າຮຽນ ທຶນການສຶກສາ ແລະ ການສະໝັກ ETVC",
+    description:
+      "ຄຳຖາມທີ່ພົບເລື້ອຍກ່ຽວກັບຄ່າຮຽນ, ທຶນການສຶກສາ, ເອກະສານສະໝັກ ແລະ ຫຼັກສູດພາສາຈີນທຸລະກິດ ຂອງ ETVC, ພ້ອມຕົວເລກທີ່ຊັດເຈນ.",
+  },
+  en: {
+    title: "ETVC admissions Q&A: tuition, scholarships and how to apply",
+    description:
+      "Common questions about ETVC tuition, scholarships, required documents and the business Chinese programme — each answered with concrete figures.",
+  },
+  ko: {
+    title: "ETVC 입학 Q&A: 등록금·장학금·지원 방법",
+    description:
+      "ETVC 등록금, 장학금, 제출 서류, 비즈니스 중국어 과정에 대한 자주 묻는 질문을 구체적 수치와 함께 정리했습니다.",
+  },
+};
+
+export function buildArticleIndexMetadata(locale: Locale): Metadata {
+  const copy = indexCopy[locale];
+  const url = absoluteUrl(articleIndexPath(locale));
+  const languages: Record<string, string> = {};
+  for (const code of locales) {
+    languages[localeMeta[code].htmlLang] = absoluteUrl(articleIndexPath(code));
+  }
+  languages["x-default"] = absoluteUrl(articleIndexPath("zh"));
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: copy.title,
+    description: copy.description,
+    alternates: { canonical: url, languages },
+    openGraph: {
+      type: "website",
+      siteName: school.name[locale],
+      title: copy.title,
+      description: copy.description,
+      url,
+      images: [
+        {
+          url: absoluteUrl("/images/og-cover.jpg"),
+          width: 1200,
+          height: 630,
+          type: "image/jpeg",
+          alt: school.name[locale],
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: copy.title,
+      description: copy.description,
+      images: [absoluteUrl("/images/og-cover.jpg")],
+    },
+    robots: { index: true, follow: true },
+  };
+}
+
+/** 文章列表页的 JSON-LD：CollectionPage + ItemList，告诉 AI 这是一组同主题文章 */export function buildArticleIndexJsonLd(locale: Locale, items: Article[]) {
+  const url = absoluteUrl(articleIndexPath(locale));
+  const orgId = `${SITE_URL}/#organization`;
+  const websiteId = `${SITE_URL}/#website`;
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": `${url}#webpage`,
+        url,
+        name: `Q&A | ${school.name[locale]}`,
+        inLanguage: localeMeta[locale].htmlLang,
+        isPartOf: { "@id": websiteId },
+        about: { "@id": orgId },
+      },
+      {
+        "@type": "ItemList",
+        "@id": `${url}#list`,
+        itemListElement: items.map((article, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          url: absoluteUrl(articlePath(locale, article.slug)),
+          name: article.title[locale],
+        })),
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": `${url}#breadcrumb`,
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: school.name[locale],
+            item: absoluteUrl(localePath(locale)),
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Q&A",
+            item: url,
+          },
+        ],
+      },
+    ],
+  };
+}

@@ -8,7 +8,7 @@ import { useLocale } from "./locale-provider";
 import { contact, navItems, school, ui } from "@/lib/content";
 
 function Logo() {
-  const { locale, t } = useLocale();
+  const { locale, t, homeHref } = useLocale();
   // 英文 / 老挝语校名较长，缩小字号并限制两行，避免撑破页眉
   const nameClass =
     locale === "lo"
@@ -18,7 +18,7 @@ function Logo() {
         : "whitespace-nowrap text-[17px] leading-tight sm:text-[19px] md:text-[21px]";
 
   return (
-    <a href="#top" className="group flex min-w-0 items-center gap-3 md:gap-3.5">
+    <a href={homeHref("#top")} className="group flex min-w-0 items-center gap-3 md:gap-3.5">
       <Image
         src="/images/logo.png"
         alt={t(school.name)}
@@ -40,7 +40,7 @@ function Logo() {
 }
 
 export function SiteHeader() {
-  const { locale, t } = useLocale();
+  const { locale, t, homeHref } = useLocale();
   const [scrolled, setScrolled] = useState(false);
   // 记录菜单是在哪个语言下展开的：语言一变，菜单自动收起，无需在 effect 里改 state
   const [openFor, setOpenFor] = useState<typeof locale | null>(null);
@@ -105,7 +105,7 @@ export function SiteHeader() {
             {navItems.map((item) => (
               <a
                 key={item.href}
-                href={item.href}
+                href={homeHref(item.href)}
                 className="group relative whitespace-nowrap px-1.5 py-2 text-[12.5px] text-ink/85 transition-colors hover:text-pine xl:px-3.5 xl:text-[14.5px]"
               >
                 {t(item.label)}
@@ -124,7 +124,7 @@ export function SiteHeader() {
               <Icon name="phone" className="h-[18px] w-[18px]" />
             </a>
             <a
-              href="#admission"
+              href={homeHref("#admission")}
               className="hidden items-center gap-2 whitespace-nowrap bg-cinnabar px-4 py-2.5 text-[13px] font-medium tracking-wide text-white transition-colors hover:bg-[#a03f24] sm:inline-flex xl:px-5 xl:text-[13.5px]"
             >
               {t(ui.applyOnline)}

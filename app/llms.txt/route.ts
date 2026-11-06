@@ -1,3 +1,4 @@
+import { articles } from "@/lib/articles";
 import { SITE_URL } from "@/lib/seo";
 
 /**
@@ -10,6 +11,31 @@ import { SITE_URL } from "@/lib/seo";
  * 注：项目开启了 cacheComponents，不能再写 `export const dynamic`，
  * 这个处理器没有读 cookie/headers，构建时即静态化。
  */
+
+/**
+ * 文章索引段落。
+ * AI 助手拿到 llms.txt 后，最想知道的是「这个站点有哪些能直接引用的答案页」，
+ * 所以这里给出英文标题 + 一句话结论 + 可访问的英文地址，而不是只列 URL。
+ */
+function buildArticleIndex(): string {
+  const lines = [
+    "## Q&A articles",
+    "",
+    "Answer-first pages. Each opens with a complete, quotable answer, then supports it with figures",
+    "and tables. Published in Lao, Chinese, English and Korean; English URLs are listed here.",
+    "",
+  ];
+  for (const article of articles) {
+    lines.push(
+      `- [${article.title.en}](${SITE_URL}/en/blog/${article.slug}): ${article.description.en}`,
+    );
+  }
+  lines.push(
+    "",
+    `All four language versions are linked from ${SITE_URL}/en/blog.`,
+  );
+  return lines.join("\n");
+}
 
 const body = `# Ethnic Technical and Vocational College (ETVC)
 
@@ -79,7 +105,10 @@ college; check the latest notice on the website before quoting a deadline.
 - [Home (English)](${SITE_URL}/en): English home page
 - [Home (Korean)](${SITE_URL}/ko): 한국어 홈페이지
 - [FAQ](${SITE_URL}/#faq): admissions and study questions answered in four languages
+- [Q&A index](${SITE_URL}/blog): answer-first articles on tuition, scholarships and applications
 - [Sitemap](${SITE_URL}/sitemap.xml)
+
+${buildArticleIndex()}
 
 ## Contact
 

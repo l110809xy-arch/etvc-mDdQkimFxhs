@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { locales } from "@/lib/i18n";
+import { ARTICLE_SLUG_SET } from "@/lib/article-slugs";
 
 /**
  * 只允许已知的语言段作为第一层路径。
@@ -8,7 +9,7 @@ import { locales } from "@/lib/i18n";
  * 「某个未知路径第一次被访问」时会先返回 200 的静态壳、再流式输出 404 内容，
  * 也就是软 404 —— 对搜索引擎不友好。这里在路由层直接判定，任何情况下都是真 404。
  */
-const KNOWN_FIRST_SEGMENT = new Set<string>([...locales, "admin"]);
+const KNOWN_FIRST_SEGMENT = new Set<string>([...locales, "admin", "blog"]);
 
 const NOT_FOUND_HTML = `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -49,9 +50,21 @@ const NOT_FOUND_HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
+function notFoundResponse() {
+  return new NextResponse(NOT_FOUND_HTML, {
+    status: 404,
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "public, max-age=0, must-revalidate",
+      "x-robots-tag": "noindex, follow",
+    },
+  });
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const first = pathname.split("/").filter(Boolean)[0];
+  const segments = pathname.split("/").filter(Boolean);
+  const first = segments[0];
 
   // 后台：没有登录 cookie 的直接踢到登录页（真正的权限校验在页面里）
   if (first === "admin" && pathname !== "/admin/login") {
@@ -66,18 +79,24 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  if (!first || KNOWN_FIRST_SEGMENT.has(first)) {
-    return NextResponse.next();
+  // 首页（无首段）直接放行；其余必须命中已知语言段或 blog / admin
+  if (!first) return NextResponse.next();
+  if (!KNOWN_FIRST_SEGMENT.has(first)) return notFoundResponse();
+
+  /**
+   * 文章 slug 校验：/blog/<slug> 与 /<locale>/blog/<slug>。
+   * 未收录的 slug 走 PPR 兜底会先给 200 再流式输出 404（软 404），
+   * 搜索引擎会把它当成真实页面收录，所以在这里直接拦成硬 404。
+   */
+  const blogAt = first === "blog" ? 0 : segments[1] === "blog" ? 1 : -1;
+  if (blogAt >= 0) {
+    const slug = segments[blogAt + 1];
+    if (slug && !ARTICLE_SLUG_SET.has(slug)) {
+      return notFoundResponse();
+    }
   }
 
-  return new NextResponse(NOT_FOUND_HTML, {
-    status: 404,
-    headers: {
-      "content-type": "text/html; charset=utf-8",
-      "cache-control": "public, max-age=0, must-revalidate",
-      "x-robots-tag": "noindex, follow",
-    },
-  });
+  return NextResponse.next();
 }
 
 export const config = {

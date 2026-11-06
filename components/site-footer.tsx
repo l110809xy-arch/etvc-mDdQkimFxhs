@@ -7,7 +7,7 @@ import { announcement, contact, footer, school, ui } from "@/lib/content";
 import { SITE_HOST, SITE_URL } from "@/lib/seo";
 
 export function SiteFooter() {
-  const { locale, t } = useLocale();
+  const { locale, t, homeHref } = useLocale();
   const addressLines = contact.addresses[locale] ?? contact.addresses.zh;
 
   return (
@@ -97,7 +97,12 @@ export function SiteFooter() {
                 {col.links.map((link) => (
                   <li key={t(link.label)}>
                     <a
-                      href={link.href}
+                      // 锚点走首页前缀；/blog 这类站内页面直接补语言前缀
+                      href={
+                        link.href.startsWith("#")
+                          ? homeHref(link.href)
+                          : `${locale === "zh" ? "" : `/${locale}`}${link.href}`
+                      }
                       className="-my-2 inline-block py-2 text-[12.5px] text-paper/55 transition-colors hover:text-gold"
                     >
                       {t(link.label)}

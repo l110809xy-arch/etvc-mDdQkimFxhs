@@ -702,6 +702,11 @@ export const footer = {
         { label: L("报名流程", "How to apply", "ຂັ້ນຕອນການສະໝັກ", "지원 절차"), href: "#apply" },
         { label: L("报名材料", "Documents", "ເອກະສານປະກອບ", "제출 서류"), href: "#apply" },
         { label: L("报名截止", "Deadline", "ກຳນົດຮັບສະໝັກ", "접수 마감"), href: "#announcement" },
+        // 站内页面（非锚点）：由 SiteFooter 自动补语言前缀
+        {
+          label: L("招生问答", "Admissions Q&A", "ຄຳຖາມ-ຄຳຕອບ", "입학 Q&A"),
+          href: "/blog",
+        },
       ],
     },
   ],
